@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cisco Groq Generator</title>
+</head>
+<body>
+
+    <h1>Generador Cisco IOS</h1>
+
+    <form method="POST">
+
+        <label>ID VLAN:</label>
+        <input type="text" name="vlan">
+
+        <br><br>
+
+        <label>Nombre VLAN:</label>
+        <input type="text" name="nombre">
+
+        <br><br>
+
+        <label>Puerto:</label>
+        <input type="text" name="puerto">
+
+        <br><br>
+
+        <button type="submit">
+            Generar
+        </button>
+
+    </form>
+
+    <hr>
+
+    <pre>{{ resultado }}</pre>
+
+</body>
+</html>
