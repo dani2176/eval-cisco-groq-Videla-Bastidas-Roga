@@ -1,3 +1,4 @@
+````md id="4o3m6v"
 # ⚡ Cisco AI Generator
 
 Generador inteligente de configuraciones Cisco IOS utilizando Inteligencia Artificial mediante la API de Groq y modelos LLM.
@@ -10,7 +11,7 @@ Este proyecto fue desarrollado como una herramienta de automatización de config
 
 La aplicación permite generar configuraciones de red automáticamente mediante prompts enviados a una IA especializada en redes Cisco.
 
-El sistema posee:
+## El sistema incluye:
 
 - Interfaz web moderna y dinámica
 - Generación automática de configuraciones Cisco IOS
@@ -65,7 +66,7 @@ Actualmente el sistema permite generar automáticamente:
 
 # 📡 Ejemplos de Configuración
 
-## 1. VLAN
+## 1️⃣ VLAN
 
 ```cisco
 vlan 10
@@ -75,11 +76,11 @@ interface fa0/1
 switchport mode access
 switchport access vlan 10
 no shutdown
-```
+````
 
 ---
 
-## 2. OSPF
+## 2️⃣ OSPF
 
 ```cisco
 router ospf 1
@@ -88,7 +89,7 @@ network 192.168.1.0 0.0.0.255 area 0
 
 ---
 
-## 3. STATIC ROUTE
+## 3️⃣ STATIC ROUTE
 
 ```cisco
 ip route 192.168.50.0 255.255.255.0 10.0.0.1
@@ -96,7 +97,7 @@ ip route 192.168.50.0 255.255.255.0 10.0.0.1
 
 ---
 
-## 4. DHCP
+## 4️⃣ DHCP
 
 ```cisco
 ip dhcp pool POOL_VENTAS
@@ -106,7 +107,7 @@ default-router 192.168.1.1
 
 ---
 
-## 5. ACL
+## 5️⃣ ACL
 
 ```cisco
 access-list 100 permit 192.168.1.0 0.0.0.255
@@ -118,13 +119,13 @@ access-list 100 permit 192.168.1.0 0.0.0.255
 
 La aplicación web posee:
 
-- Diseño responsive
-- Estilo moderno tipo cyberpunk
-- Colores dinámicos azul, rojo y morado
-- Animaciones suaves
-- Efectos glow
-- Formularios intuitivos
-- Visualización clara de resultados
+* Diseño responsive
+* Estilo moderno tipo cyberpunk
+* Colores dinámicos azul, rojo y morado
+* Animaciones suaves
+* Efectos glow
+* Formularios intuitivos
+* Visualización clara de resultados
 
 ---
 
@@ -134,7 +135,7 @@ La aplicación web posee:
 
 La clave privada de Groq se almacena en un archivo `.env`.
 
-Ejemplo:
+### Ejemplo:
 
 ```env
 GROQ_API_KEY=TU_API_KEY_AQUI
@@ -146,7 +147,7 @@ GROQ_API_KEY=TU_API_KEY_AQUI
 
 El archivo `.env` se protege mediante `.gitignore` para evitar subir credenciales privadas a GitHub.
 
-Contenido de `.gitignore`:
+### Contenido de `.gitignore`
 
 ```gitignore
 venv/
@@ -162,13 +163,13 @@ El sistema valida entradas antes de consumir la API.
 
 Actualmente se valida:
 
-- VLAN numérica
-- VLAN dentro del rango válido (1–4094)
-- Proceso OSPF numérico
-- Cantidad de subredes válida
-- Selección correcta del menú
+* VLAN numérica
+* VLAN dentro del rango válido (1–4094)
+* Proceso OSPF numérico
+* Cantidad de subredes válida
+* Selección correcta del menú
 
-Ejemplo de error:
+### Ejemplo de error
 
 ```text
 ERROR: VLAN fuera de rango
@@ -207,7 +208,7 @@ Todas las configuraciones generadas se almacenan automáticamente en la carpeta:
 configs/
 ```
 
-Ejemplo:
+### Ejemplo
 
 ```text
 configs/vlan_20260513_154500.txt
@@ -229,6 +230,11 @@ eval-cisco-groq/
 ├── templates/
 │   └── index.html
 │
+├── static/
+│   └── style.css
+│
+├── imagenes/
+│
 ├── venv/
 │
 ├── .env
@@ -241,9 +247,9 @@ eval-cisco-groq/
 
 ---
 
-# 🛠 Instalación
+# 🛠️ Instalación
 
-## 1. Clonar repositorio
+## 1️⃣ Clonar repositorio
 
 ```bash
 git clone URL_DEL_REPOSITORIO
@@ -251,7 +257,7 @@ git clone URL_DEL_REPOSITORIO
 
 ---
 
-## 2. Crear entorno virtual
+## 2️⃣ Crear entorno virtual
 
 ```bash
 py -3.13 -m venv venv
@@ -259,7 +265,7 @@ py -3.13 -m venv venv
 
 ---
 
-## 3. Activar entorno virtual
+## 3️⃣ Activar entorno virtual
 
 ```bash
 venv\Scripts\activate
@@ -267,7 +273,7 @@ venv\Scripts\activate
 
 ---
 
-## 4. Instalar dependencias
+## 4️⃣ Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
@@ -275,7 +281,7 @@ pip install -r requirements.txt
 
 ---
 
-## 5. Crear archivo `.env`
+## 5️⃣ Crear archivo `.env`
 
 Crear un archivo llamado:
 
@@ -291,7 +297,7 @@ GROQ_API_KEY=TU_API_KEY
 
 ---
 
-## 6. Ejecutar aplicación
+## 6️⃣ Ejecutar aplicación
 
 ```bash
 python web_app.py
@@ -314,16 +320,36 @@ python web_app.py
 
 ---
 
+# 📸 Evidencias del Proyecto
+
+## 🖥️ Interfaz Principal
+
+![Interfaz Principal](imagenes/interfaz_principal.png)
+
+---
+
+## 🛡️ Configuración ACL
+
+![Configuración ACL](imagenes/acl_generada.png)
+
+---
+
+## 📡 Configuración DHCP
+
+![Configuración DHCP](imagenes/dhcp_generado.png)
+
+---
+
 # 🔄 Control de Versiones
 
 Se utiliza Git y GitHub para:
 
-- Historial de cambios
-- Respaldo del proyecto
-- Colaboración
-- Seguimiento de commits
+* Historial de cambios
+* Respaldo del proyecto
+* Colaboración
+* Seguimiento de commits
 
-Comandos utilizados:
+## Comandos utilizados
 
 ```bash
 git add .
@@ -333,22 +359,33 @@ git push
 
 ---
 
-# 📌 Estado Actual
+# 📌 Estado Actual del Proyecto
 
 Proyecto funcional y conectado correctamente a la API de Groq.
 
-Características confirmadas:
+## Características confirmadas
 
-- API funcionando
-- Generación automática Cisco IOS
-- Interfaz web funcional
-- Validaciones activas
-- Streaming en tiempo real
-- Guardado automático de configuraciones
-- Repositorio conectado a GitHub
+* API funcionando
+* Generación automática Cisco IOS
+* Interfaz web funcional
+* Validaciones activas
+* Streaming en tiempo real
+* Guardado automático de configuraciones
+* Repositorio conectado a GitHub
 
 ---
 
-# 👨‍💻 Autor
+# 👨‍💻 Autores
 
-Proyecto académico desarrollado con Python, Flask y Groq AI para automatización de configuraciones Cisco IOS.
+* Daniel Videla
+* Pedro Roga
+* Nicolas Bastidas
+
+---
+
+# 📜 Licencia
+
+Este proyecto utiliza licencia MIT.
+
+```
+```
