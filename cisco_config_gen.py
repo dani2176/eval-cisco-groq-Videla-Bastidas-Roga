@@ -49,6 +49,12 @@ print("===== GENERADOR CISCO IOS =====")
 print("1. VLAN")
 print("2. OSPF")
 print("3. SUBNETTING")
+print("1. VLAN")
+print("2. OSPF")
+print("3. SUBNETTING")
+print("4. STATIC ROUTE")
+print("5. DHCP")
+print("6. ACL")
 
 opcion = input("Seleccione opción: ")
 
@@ -147,6 +153,56 @@ Red base {red}/{prefijo}
 Cantidad subredes {subredes}
 Asignar gateways válidos
 """
+    
+# ... (código anterior de tus compañeros) ...
+
+
+elif opcion == "4":
+    red_destino = input("Red destino: ")
+    mascara = input("Máscara: ")
+    gateway = input("Gateway: ")
+    tipo = "static_route"
+    prompt = f"""
+    Configurar ruta estática:
+
+    red destino {red_destino}
+    mascara {mascara}
+    gateway {gateway}
+    """
+
+elif opcion == "5":
+    pool = input("Nombre pool DHCP: ")
+    red = input("Red: ")
+    mascara = input("Máscara: ")
+    gateway = input("Gateway: ")
+    tipo = "dhcp"
+    prompt = f"""
+    Configurar DHCP Cisco:
+
+    pool {pool}
+    red {red}
+    mascara {mascara}
+    gateway {gateway}
+    """
+
+elif opcion == "6":
+    numero_acl = input("Número ACL: ")
+    permiso = input("permit/deny: ")
+    red = input("Red: ")
+    wildcard = input("Wildcard: ")
+    tipo = "acl"
+    prompt = f"""
+    Configurar ACL Cisco:
+
+    ACL {numero_acl}
+    accion {permiso}
+    red {red}
+    wildcard {wildcard}
+    """
+
+else:
+    print("Opción inválida")
+    exit()
 
 # =====================================================
 # OPCIÓN INVÁLIDA
