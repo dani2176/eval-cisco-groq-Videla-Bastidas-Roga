@@ -55,6 +55,9 @@ print("3. SUBNETTING")
 print("4. STATIC ROUTE")
 print("5. DHCP")
 print("6. ACL")
+print("5. DHCP")
+print("6. ACL")
+print("7. PORT-SECURITY")
 
 opcion = input("Seleccione opción: ")
 
@@ -198,6 +201,19 @@ elif opcion == "6":
     accion {permiso}
     red {red}
     wildcard {wildcard}
+    """
+    elif opcion == "7":
+    interfaz = input("Interfaz (ej. FastEthernet 0/1): ")
+    max_mac = input("Máximo de MACs permitidas (ej. 2): ")
+    violacion = input("Acción de violación (protect / restrict / shutdown): ")
+    
+    tipo = "port_security"
+    prompt = f"""
+    Configurar Port-Security Cisco:
+
+    interfaz {interfaz}
+    maximo MAC {max_mac}
+    violacion {violacion}
     """
 
 else:
