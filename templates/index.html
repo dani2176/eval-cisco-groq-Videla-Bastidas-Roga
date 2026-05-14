@@ -1,385 +1,224 @@
+<!-- templates/index.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>Cisco AI Generator</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Cisco AI Generator</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
-}
-
-body{
-
-    min-height:100vh;
-
-    background:
-    linear-gradient(
-    135deg,
-    #0f172a,
-    #111827,
-    #1e1b4b
-    );
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    padding:40px;
-}
-
-.container{
-
-    width:100%;
-    max-width:1000px;
-
-    background:rgba(255,255,255,0.05);
-
-    border:1px solid rgba(255,255,255,0.1);
-
-    backdrop-filter:blur(20px);
-
-    border-radius:30px;
-
-    padding:40px;
-
-    box-shadow:
-    0 0 30px rgba(59,130,246,0.3),
-    0 0 60px rgba(168,85,247,0.2);
-
-    animation:fadeIn 1s ease;
-}
-
-@keyframes fadeIn{
-
-    from{
-        opacity:0;
-        transform:translateY(30px);
-    }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
-
-.title{
-
-    text-align:center;
-    margin-bottom:40px;
-}
-
-.title h1{
-
-    font-size:45px;
-    font-weight:700;
-
-    background:
-    linear-gradient(
-    to right,
-    #3b82f6,
-    #ef4444,
-    #a855f7
-    );
-
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
-
-.title p{
-
-    color:#cbd5e1;
-    margin-top:10px;
-}
-
-.form-grid{
-
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:25px;
-}
-
-.input-box{
-
-    display:flex;
-    flex-direction:column;
-}
-
-.input-box label{
-
-    color:white;
-    margin-bottom:10px;
-    font-weight:500;
-}
-
-.input-box input,
-.input-box select{
-
-    padding:15px;
-
-    border:none;
-    outline:none;
-
-    border-radius:15px;
-
-    background:rgba(255,255,255,0.08);
-
-    color:white;
-
-    font-size:15px;
-
-    transition:0.3s;
-}
-
-.input-box input:focus,
-.input-box select:focus{
-
-    border:1px solid #3b82f6;
-
-    box-shadow:
-    0 0 10px #3b82f6,
-    0 0 20px rgba(59,130,246,0.5);
-}
-
-.full{
-
-    grid-column:1/3;
-}
-
-button{
-
-    width:100%;
-
-    padding:18px;
-
-    border:none;
-
-    border-radius:18px;
-
-    background:
-    linear-gradient(
-    90deg,
-    #3b82f6,
-    #ef4444,
-    #a855f7
-    );
-
-    color:white;
-
-    font-size:18px;
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:0.4s;
-
-    margin-top:20px;
-}
-
-button:hover{
-
-    transform:translateY(-3px) scale(1.02);
-
-    box-shadow:
-    0 0 20px rgba(59,130,246,0.6),
-    0 0 40px rgba(168,85,247,0.4);
-}
-
-.result{
-
-    margin-top:40px;
-
-    background:#0f172a;
-
-    border-radius:20px;
-
-    padding:25px;
-
-    border-left:5px solid #3b82f6;
-}
-
-.result h2{
-
-    color:#3b82f6;
-    margin-bottom:20px;
-}
-
-.result pre{
-
-    color:#e2e8f0;
-
-    white-space:pre-wrap;
-
-    line-height:1.6;
-
-    font-size:15px;
-}
-
-.footer{
-
-    margin-top:30px;
-
-    text-align:center;
-
-    color:#94a3b8;
-}
-
-@media(max-width:768px){
-
-    .form-grid{
-
-        grid-template-columns:1fr;
-    }
-
-    .full{
-
-        grid-column:1/2;
-    }
-
-    .title h1{
-
-        font-size:32px;
-    }
-}
-
-</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <div class="container">
 
-    <div class="title">
-
-        <h1>⚡ Cisco AI Generator</h1>
-
-        <p>
-            Generador Inteligente Cisco IOS con IA
-        </p>
-
-    </div>
+    <h1>Cisco AI Generator</h1>
+    <p class="subtitulo">
+        Generador Inteligente Cisco IOS con IA
+    </p>
 
     <form method="POST">
 
-        <div class="form-grid">
+        <!-- TIPO -->
 
-            <div class="input-box full">
+        <div>
+            <label>Tipo de Configuración</label>
 
-                <label>Tipo de Configuración</label>
+            <select name="tipo" required>
 
-                <select name="opcion">
+                <option value="">Seleccione una opción</option>
 
-                    <option value="vlan">VLAN</option>
+                <option value="vlan"
+                    {% if tipo == "vlan" %}selected{% endif %}>
+                    VLAN
+                </option>
 
-                    <option value="ospf">OSPF</option>
+                <option value="ospf"
+                    {% if tipo == "ospf" %}selected{% endif %}>
+                    OSPF
+                </option>
 
-                    <option value="subnetting">SUBNETTING</option>
+                <option value="subnetting"
+                    {% if tipo == "subnetting" %}selected{% endif %}>
+                    SUBNETTING
+                </option>
 
-                    <option value="static">STATIC ROUTE</option>
+                <option value="dhcp"
+                    {% if tipo == "dhcp" %}selected{% endif %}>
+                    DHCP
+                </option>
 
-                    <option value="dhcp">DHCP</option>
+                <option value="acl"
+                    {% if tipo == "acl" %}selected{% endif %}>
+                    ACL
+                </option>
 
-                    <option value="acl">ACL</option>
+            </select>
+        </div>
 
-                </select>
+        <!-- VLAN -->
 
-            </div>
+        <div class="grid-2">
 
-            <div class="input-box">
-
+            <div>
                 <label>ID VLAN</label>
 
                 <input
-                type="text"
-                name="vlan"
-                placeholder="10">
+                    type="text"
+                    name="vlan"
+                    placeholder="10"
+                >
             </div>
 
-            <div class="input-box">
-
+            <div>
                 <label>Nombre VLAN</label>
 
                 <input
-                type="text"
-                name="nombre"
-                placeholder="ventas">
-            </div>
-
-            <div class="input-box full">
-
-                <label>Puerto</label>
-
-                <input
-                type="text"
-                name="puerto"
-                placeholder="fa0/1">
-            </div>
-
-            <div class="input-box">
-
-                <label>Proceso OSPF</label>
-
-                <input
-                type="text"
-                name="proceso"
-                placeholder="1">
-            </div>
-
-            <div class="input-box">
-
-                <label>Red OSPF</label>
-
-                <input
-                type="text"
-                name="red"
-                placeholder="192.168.1.0">
-            </div>
-
-            <div class="input-box full">
-
-                <label>Área OSPF</label>
-
-                <input
-                type="text"
-                name="area"
-                placeholder="0">
+                    type="text"
+                    name="nombre"
+                    placeholder="VENTAS"
+                >
             </div>
 
         </div>
 
+        <!-- PUERTO -->
+
+        <div>
+            <label>Puerto</label>
+
+            <input
+                type="text"
+                name="puerto"
+                placeholder="fa0/1"
+            >
+        </div>
+
+        <!-- OSPF -->
+
+        <div class="grid-2">
+
+            <div>
+                <label>Proceso OSPF</label>
+
+                <input
+                    type="text"
+                    name="proceso"
+                    placeholder="1"
+                >
+            </div>
+
+            <div>
+                <label>Red OSPF</label>
+
+                <input
+                    type="text"
+                    name="red"
+                    placeholder="192.168.1.0"
+                >
+            </div>
+
+        </div>
+
+        <!-- AREA -->
+
+        <div>
+            <label>Área OSPF</label>
+
+            <input
+                type="text"
+                name="area"
+                placeholder="0"
+            >
+        </div>
+
+        <!-- DHCP -->
+
+        <div class="grid-2">
+
+            <div>
+                <label>Gateway</label>
+
+                <input
+                    type="text"
+                    name="gateway"
+                    placeholder="192.168.1.1"
+                >
+            </div>
+
+            <div>
+                <label>DNS</label>
+
+                <input
+                    type="text"
+                    name="dns"
+                    placeholder="8.8.8.8"
+                >
+            </div>
+
+        </div>
+
+        <!-- ACL -->
+
+        <div class="grid-2">
+
+            <div>
+                <label>Permitir IP</label>
+
+                <input
+                    type="text"
+                    name="permitir"
+                    placeholder="192.168.1.0"
+                >
+            </div>
+
+            <div>
+                <label>Wildcard</label>
+
+                <input
+                    type="text"
+                    name="wildcard"
+                    placeholder="0.0.0.255"
+                >
+            </div>
+
+        </div>
+
+        <!-- SUBNETTING -->
+
+        <div>
+            <label>Cantidad Subredes</label>
+
+            <input
+                type="text"
+                name="subredes"
+                placeholder="4"
+            >
+        </div>
+
+        <!-- BOTON -->
+
         <button type="submit">
-            🚀 Generar Configuración
+            Generar Configuración
         </button>
 
     </form>
 
-    {% if resultado %}
+    <!-- RESULTADO -->
 
-    <div class="result">
+    {% if respuesta %}
 
-        <h2>📡 Configuración Generada</h2>
+    <div class="resultado">
 
-        <pre>{{ resultado }}</pre>
+        <h2>Configuración Generada</h2>
+
+        <pre>{{ respuesta }}</pre>
 
     </div>
 
     {% endif %}
-
-    <div class="footer">
-
-        Cisco Groq Generator © 2026
-
-    </div>
 
 </div>
 

@@ -1,61 +1,72 @@
-from flask import Flask, render_template, request
-from groq import Groq
-from dotenv import load_dotenv
-from datetime import datetime
+# web_app.py
+
 import os
 
-# cargar variables .env
+from flask import Flask, render_template, request
+
+from groq import Groq
+
+from dotenv import load_dotenv
+
+# =========================
+# CARGAR VARIABLES
+# =========================
+
 load_dotenv()
 
-# obtener API key
 api_key = os.getenv("GROQ_API_KEY")
 
-# validar key
-if not api_key:
-    print("ERROR: No se encontró GROQ_API_KEY")
-    exit()
+# =========================
+# CLIENTE GROQ
+# =========================
 
-# cliente Groq
 client = Groq(api_key=api_key)
 
-# app flask
+# =========================
+# APP FLASK
+# =========================
+
 app = Flask(__name__)
 
-# crear carpeta configs
-if not os.path.exists("configs"):
-    os.makedirs("configs")
+# =========================
+# PROMPT SISTEMA
+# =========================
 
-# prompt sistema
-SYSTEM_PROMPT = """
-Eres experto en Cisco IOS.
+system_prompt = """
+Eres un experto en Cisco IOS.
 
 Debes generar SOLO comandos Cisco IOS válidos.
 
 NO expliques nada.
 NO uses markdown.
-NO uses texto extra.
+NO uses texto adicional.
 """
+
+# =========================
+# HOME
+# =========================
 
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-    resultado = ""
+    respuesta = ""
+    tipo = ""
 
     if request.method == "POST":
 
-        opcion = request.form.get("opcion")
+        tipo = request.form.get("tipo")
 
         prompt = ""
-        tipo = ""
 
+        # =========================
         # VLAN
-        if opcion == "vlan":
+        # =========================
+
+        if tipo == "vlan":
 
             vlan = request.form.get("vlan")
             nombre = request.form.get("nombre")
             puerto = request.form.get("puerto")
-
-            tipo = "vlan"
 
             prompt = f"""
             Crear VLAN {vlan}
@@ -63,92 +74,80 @@ def index():
             Puerto {puerto}
             """
 
+        # =========================
         # OSPF
-        elif opcion == "ospf":
+        # =========================
+
+        elif tipo == "ospf":
 
             proceso = request.form.get("proceso")
             red = request.form.get("red")
             area = request.form.get("area")
 
-            tipo = "ospf"
-
             prompt = f"""
-            Configurar OSPF:
+            Configurar OSPF
 
-            proceso {proceso}
-            red {red}
-            area {area}
+            Proceso: {proceso}
+
+            Red: {red}
+
+            Área: {area}
             """
 
+        # =========================
         # SUBNETTING
-        elif opcion == "subnetting":
+        # =========================
 
-            red_base = request.form.get("red_base")
+        elif tipo == "subnetting":
+
+            red = request.form.get("red")
             subredes = request.form.get("subredes")
 
-            tipo = "subnetting"
-
             prompt = f"""
-            Generar subnetting:
+            Generar subnetting
 
-            red {red_base}
-            subredes {subredes}
+            Red base: {red}
+
+            Cantidad subredes: {subredes}
             """
 
-        # STATIC ROUTE
-        elif opcion == "static":
-
-            red_destino = request.form.get("red_destino")
-            mascara = request.form.get("mascara")
-            gateway = request.form.get("gateway")
-
-            tipo = "static_route"
-
-            prompt = f"""
-            Configurar ruta estática:
-
-            red destino {red_destino}
-            mascara {mascara}
-            gateway {gateway}
-            """
-
+        # =========================
         # DHCP
-        elif opcion == "dhcp":
+        # =========================
 
-            pool = request.form.get("pool")
-            red = request.form.get("red_dhcp")
-            mascara = request.form.get("mascara_dhcp")
-            gateway = request.form.get("gateway_dhcp")
+        elif tipo == "dhcp":
 
-            tipo = "dhcp"
+            gateway = request.form.get("gateway")
+            dns = request.form.get("dns")
 
             prompt = f"""
-            Configurar DHCP Cisco:
+            Configurar DHCP Cisco IOS
 
-            pool {pool}
-            red {red}
-            mascara {mascara}
-            gateway {gateway}
+            Gateway: {gateway}
+
+            DNS: {dns}
             """
 
+        # =========================
         # ACL
-        elif opcion == "acl":
+        # =========================
 
-            numero_acl = request.form.get("numero_acl")
-            permiso = request.form.get("permiso")
-            red_acl = request.form.get("red_acl")
+        elif tipo == "acl":
+
+            permitir = request.form.get("permitir")
             wildcard = request.form.get("wildcard")
 
-            tipo = "acl"
-
             prompt = f"""
-            Configurar ACL Cisco:
+            Configurar ACL estándar Cisco IOS
 
-            ACL {numero_acl}
-            accion {permiso}
-            red {red_acl}
-            wildcard {wildcard}
+            Permitir: {permitir}
+
+            Wildcard: {wildcard}
             """
+
+        # =========================
+        # GENERAR IA
+        # =========================
 
         try:
 
@@ -156,41 +155,42 @@ def index():
 
                 model="llama-3.3-70b-versatile",
 
+                temperature=0.2,
+
+                max_tokens=800,
+
                 messages=[
 
                     {
                         "role": "system",
-                        "content": SYSTEM_PROMPT
+                        "content": system_prompt
                     },
 
                     {
                         "role": "user",
                         "content": prompt
                     }
-                ],
 
-                temperature=0.2,
-                max_tokens=800
+                ]
+
             )
 
-            resultado = completion.choices[0].message.content
-
-            # guardar archivo
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            archivo = f"configs/{tipo}_{timestamp}.txt"
-
-            with open(archivo, "w", encoding="utf-8") as f:
-                f.write(resultado)
+            respuesta = completion.choices[0].message.content
 
         except Exception as e:
 
-            resultado = f"ERROR: {e}"
+            respuesta = f"ERROR: {e}"
 
     return render_template(
         "index.html",
-        resultado=resultado
+        respuesta=respuesta,
+        tipo=tipo
     )
 
+# =========================
+# RUN
+# =========================
+
 if __name__ == "__main__":
+
     app.run(debug=True)
