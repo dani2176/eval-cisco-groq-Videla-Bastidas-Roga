@@ -50,6 +50,11 @@ print("4. STATIC ROUTE")
 print("5. DHCP")
 print("6. ACL")
 print("7. PORT-SECURITY")
+print("8. SSH")
+print("9. TRUNK")
+print("10. INTER-VLAN ROUTING")
+print("11. NAT")
+print("12. ETHERCHANNEL")
 
 opcion = input("\nSeleccione opción: ")
 
@@ -230,6 +235,97 @@ Máximo MAC {max_mac}
 Violación {violacion}
 """
 
+# =========================
+# SSH
+# =========================
+elif opcion == "8":
+
+    hostname = input("Hostname: ")
+    dominio = input("Dominio: ")
+    usuario = input("Usuario: ")
+    password = input("Password: ")
+
+    tipo = "ssh"
+
+    prompt = f"""
+Configurar SSH Cisco:
+
+Hostname {hostname}
+Dominio {dominio}
+Usuario {usuario}
+Password {password}
+"""
+
+# =========================
+# TRUNK
+# =========================
+elif opcion == "9":
+
+    interfaz = input("Interfaz trunk: ")
+    vlans = input("VLANs permitidas (ej: 10,20,30): ")
+
+    tipo = "trunk"
+
+    prompt = f"""
+Configurar Trunk Cisco:
+
+Interfaz {interfaz}
+VLANs permitidas {vlans}
+"""
+
+# =========================
+# INTER-VLAN ROUTING
+# =========================
+elif opcion == "10":
+
+    vlan = input("Número VLAN: ")
+    gateway = input("Gateway: ")
+
+    tipo = "inter_vlan"
+
+    prompt = f"""
+Configurar Inter-VLAN Routing Cisco:
+
+VLAN {vlan}
+Gateway {gateway}
+"""
+
+# =========================
+# NAT
+# =========================
+elif opcion == "11":
+
+    red = input("Red interna: ")
+    wildcard = input("Wildcard: ")
+    interfaz = input("Interfaz externa: ")
+
+    tipo = "nat"
+
+    prompt = f"""
+Configurar NAT Cisco:
+
+Red interna {red}
+Wildcard {wildcard}
+Interfaz externa {interfaz}
+"""
+
+# =========================
+# ETHERCHANNEL
+# =========================
+elif opcion == "12":
+
+    interfaces = input("Interfaces (ej: Fa0/1-Fa0/2): ")
+    grupo = input("Número de grupo: ")
+
+    tipo = "etherchannel"
+
+    prompt = f"""
+Configurar EtherChannel Cisco:
+
+Interfaces {interfaces}
+Grupo {grupo}
+"""
+    
 # =========================
 # OPCIÓN INVÁLIDA
 # =========================
