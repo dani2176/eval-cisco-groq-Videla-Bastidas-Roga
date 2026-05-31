@@ -1,0 +1,6 @@
+interface GigabitEthernet0/7
+switchport mode access
+switchport port-security
+switchport port-security maximum 7
+switchport port-security violation protect
+switchport port-security violation shutdown

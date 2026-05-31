@@ -8,15 +8,12 @@ from datetime import datetime
 # =========================
 load_dotenv()
 
-# obtener API key
 api_key = os.getenv("GROQ_API_KEY")
 
-# validar API key
 if not api_key:
     print("ERROR: No se encontró GROQ_API_KEY")
     exit()
 
-# cliente Groq
 client = Groq(api_key=api_key)
 
 # =========================
@@ -45,40 +42,33 @@ REGLAS:
 # =========================
 # MENÚ
 # =========================
-print("===== GENERADOR CISCO IOS =====")
-print("1. VLAN")
-print("2. OSPF")
-print("3. SUBNETTING")
+print("\n===== GENERADOR CISCO IOS =====")
 print("1. VLAN")
 print("2. OSPF")
 print("3. SUBNETTING")
 print("4. STATIC ROUTE")
 print("5. DHCP")
 print("6. ACL")
-print("5. DHCP")
-print("6. ACL")
 print("7. PORT-SECURITY")
 
-opcion = input("Seleccione opción: ")
+opcion = input("\nSeleccione opción: ")
 
 prompt = ""
 tipo = ""
 
-# =====================================================
-# ESCENARIO VLAN
-# =====================================================
+# =========================
+# VLAN
+# =========================
 if opcion == "1":
 
     vlan = input("ID VLAN: ")
 
-    # validar número
     if not vlan.isdigit():
         print("ERROR: VLAN inválida")
         exit()
 
     vlan = int(vlan)
 
-    # validar rango VLAN
     if vlan < 1 or vlan > 4094:
         print("ERROR: VLAN fuera de rango")
         exit()
@@ -94,14 +84,13 @@ Nombre {nombre}
 Puerto {puerto}
 """
 
-# =====================================================
-# ESCENARIO OSPF
-# =====================================================
+# =========================
+# OSPF
+# =========================
 elif opcion == "2":
 
     proceso = input("Proceso OSPF: ")
 
-    # validar proceso
     if not proceso.isdigit():
         print("ERROR: proceso inválido")
         exit()
@@ -109,7 +98,6 @@ elif opcion == "2":
     red = input("Red: ")
     area = input("Área: ")
 
-    # validar área
     if not area.isdigit():
         print("ERROR: área inválida")
         exit()
@@ -118,21 +106,21 @@ elif opcion == "2":
 
     prompt = f"""
 Configurar OSPF:
+
 Proceso {proceso}
 Red {red}
 Área {area}
 """
 
-# =====================================================
-# ESCENARIO SUBNETTING
-# =====================================================
+# =========================
+# SUBNETTING
+# =========================
 elif opcion == "3":
 
     red = input("Red base: ")
     prefijo = input("Prefijo CIDR: ")
     subredes = input("Cantidad subredes: ")
 
-    # validar prefijo
     if not prefijo.isdigit():
         print("ERROR: prefijo inválido")
         exit()
@@ -143,93 +131,115 @@ elif opcion == "3":
         print("ERROR: prefijo fuera de rango")
         exit()
 
-    # validar subredes
     if not subredes.isdigit():
-        print("ERROR: subredes inválidas")
+        print("ERROR: cantidad de subredes inválida")
         exit()
 
     tipo = "subnetting"
 
     prompt = f"""
 Generar subnetting Cisco:
+
 Red base {red}/{prefijo}
 Cantidad subredes {subredes}
-Asignar gateways válidos
+
+Mostrar:
+- Subred
+- Máscara
+- Gateway
+- Hosts disponibles
 """
-    
-# ... (código anterior de tus compañeros) ...
 
-
+# =========================
+# STATIC ROUTE
+# =========================
 elif opcion == "4":
+
     red_destino = input("Red destino: ")
     mascara = input("Máscara: ")
     gateway = input("Gateway: ")
+
     tipo = "static_route"
+
     prompt = f"""
-    Configurar ruta estática:
+Configurar ruta estática:
 
-    red destino {red_destino}
-    mascara {mascara}
-    gateway {gateway}
-    """
+Red destino {red_destino}
+Máscara {mascara}
+Gateway {gateway}
+"""
 
+# =========================
+# DHCP
+# =========================
 elif opcion == "5":
+
     pool = input("Nombre pool DHCP: ")
     red = input("Red: ")
     mascara = input("Máscara: ")
     gateway = input("Gateway: ")
+
     tipo = "dhcp"
+
     prompt = f"""
-    Configurar DHCP Cisco:
+Configurar DHCP Cisco:
 
-    pool {pool}
-    red {red}
-    mascara {mascara}
-    gateway {gateway}
-    """
+Pool {pool}
+Red {red}
+Máscara {mascara}
+Gateway {gateway}
+"""
 
+# =========================
+# ACL
+# =========================
 elif opcion == "6":
+
     numero_acl = input("Número ACL: ")
     permiso = input("permit/deny: ")
     red = input("Red: ")
     wildcard = input("Wildcard: ")
+
     tipo = "acl"
-    prompt = f"""
-    Configurar ACL Cisco:
 
-    ACL {numero_acl}
-    accion {permiso}
-    red {red}
-    wildcard {wildcard}
-    """
-    elif opcion == "7":
-    interfaz = input("Interfaz (ej. FastEthernet 0/1): ")
-    max_mac = input("Máximo de MACs permitidas (ej. 2): ")
-    violacion = input("Acción de violación (protect / restrict / shutdown): ")
-    
+    prompt = f"""
+Configurar ACL Cisco:
+
+ACL {numero_acl}
+Acción {permiso}
+Red {red}
+Wildcard {wildcard}
+"""
+
+# =========================
+# PORT SECURITY
+# =========================
+elif opcion == "7":
+
+    interfaz = input("Interfaz (ej. FastEthernet0/1): ")
+    max_mac = input("Máximo de MACs permitidas: ")
+    violacion = input("Acción (protect/restrict/shutdown): ")
+
     tipo = "port_security"
+
     prompt = f"""
-    Configurar Port-Security Cisco:
+Configurar Port-Security Cisco:
 
-    interfaz {interfaz}
-    maximo MAC {max_mac}
-    violacion {violacion}
-    """
+Interfaz {interfaz}
+Máximo MAC {max_mac}
+Violación {violacion}
+"""
 
-else:
-    print("Opción inválida")
-    exit()
-
-# =====================================================
+# =========================
 # OPCIÓN INVÁLIDA
-# =====================================================
+# =========================
 else:
     print("ERROR: opción inválida")
     exit()
 
-# =====================================================
-# LLAMADA API GROQ
-# =====================================================
+# =========================
+# LLAMADA A GROQ
+# =========================
 try:
 
     stream = client.chat.completions.create(
@@ -249,11 +259,10 @@ try:
         ]
     )
 
-    print("\n===== CONFIGURACIÓN =====\n")
+    print("\n===== CONFIGURACIÓN GENERADA =====\n")
 
     respuesta = ""
 
-    # streaming en tiempo real
     for chunk in stream:
 
         contenido = chunk.choices[0].delta.content
@@ -262,21 +271,16 @@ try:
             print(contenido, end="")
             respuesta += contenido
 
-    # timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # nombre archivo
     archivo = f"configs/{tipo}_{timestamp}.txt"
 
-    # guardar archivo
     with open(archivo, "w", encoding="utf-8") as f:
         f.write(respuesta)
 
-    print(f"\n\nArchivo guardado en: {archivo}")
+    print(f"\n\nConfiguración guardada en:")
+    print(archivo)
 
-# =====================================================
-# MANEJO DE ERRORES
-# =====================================================
 except Exception as e:
     print("\nERROR:", e)
     
