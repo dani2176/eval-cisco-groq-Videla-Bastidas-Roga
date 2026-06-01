@@ -1,4 +1,5 @@
 import os
+import ipaddress
 from groq import Groq
 from dotenv import load_dotenv
 from datetime import datetime
@@ -15,6 +16,25 @@ if not api_key:
     exit()
 
 client = Groq(api_key=api_key)
+
+def calcular_red(red_cidr):
+    red = ipaddress.ip_network(red_cidr, strict=False)
+
+    mascara = str(red.netmask)
+
+    wildcard = ".".join(
+        str(255 - int(octeto))
+        for octeto in mascara.split(".")
+    )
+
+    gateway = str(list(red.hosts())[0])
+
+    return {
+        "red": str(red.network_address),
+        "mascara": mascara,
+        "wildcard": wildcard,
+        "gateway": gateway
+    }
 
 # =========================
 # CREAR CARPETA CONFIGS
@@ -100,7 +120,10 @@ elif opcion == "2":
         print("ERROR: proceso inválido")
         exit()
 
-    red = input("Red: ")
+    red_cidr = input("Red CIDR (ej: 192.168.1.0/24): ")
+
+    datos = calcular_red(red_cidr)
+
     area = input("Área: ")
 
     if not area.isdigit():
@@ -113,7 +136,12 @@ elif opcion == "2":
 Configurar OSPF:
 
 Proceso {proceso}
-Red {red}
+
+Red {datos['red']}
+Mascara {datos['mascara']}
+Wildcard {datos['wildcard']}
+Gateway {datos['gateway']}
+
 Área {area}
 """
 
@@ -131,6 +159,14 @@ elif opcion == "3":
         exit()
 
     prefijo = int(prefijo)
+
+    datos_red = calcular_red(f"{red}/{prefijo}")
+
+    print("\n===== DATOS CALCULADOS =====")
+    print("Red:", datos_red["red"])
+    print("Máscara:", datos_red["mascara"])
+    print("Wildcard:", datos_red["wildcard"])
+    print("Gateway sugerido:", datos_red["gateway"])
 
     if prefijo < 8 or prefijo > 30:
         print("ERROR: prefijo fuera de rango")

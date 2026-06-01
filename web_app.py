@@ -18,6 +18,28 @@ if not api_key:
 # cliente Groq
 client = Groq(api_key=api_key)
 
+# ====================================
+# FUNCIONES DE AUTOCOMPLETADO IA
+# ====================================
+
+def calcular_wildcard(mascara):
+    partes = mascara.split(".")
+    return ".".join(str(255 - int(x)) for x in partes)
+
+def generar_red_automatica():
+    import random
+
+    tercer_octeto = random.randint(1, 254)
+
+    return {
+        "red": f"192.168.{tercer_octeto}.0",
+        "mascara": "255.255.255.0",
+        "wildcard": "0.0.0.255",
+        "gateway": f"192.168.{tercer_octeto}.1",
+        "area": "0",
+        "proceso": "1"
+    }
+
 # app flask
 app = Flask(__name__)
 

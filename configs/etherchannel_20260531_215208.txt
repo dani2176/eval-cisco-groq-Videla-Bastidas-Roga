@@ -1,0 +1,3 @@
+interface range GigabitEthernet0/6-16
+channel-group 6 mode active
+exit

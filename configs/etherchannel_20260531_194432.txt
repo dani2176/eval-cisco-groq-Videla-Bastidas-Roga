@@ -1,0 +1,3 @@
+interface range GigabitEthernet0/5-10
+channel-group 69 mode active
+exit
