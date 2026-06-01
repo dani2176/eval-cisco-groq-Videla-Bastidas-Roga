@@ -1,397 +1,332 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Cisco AI Generator</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
-}
-
-body{
-
-    min-height:100vh;
-
-    background:
-    linear-gradient(
-    135deg,
-    #0f172a,
-    #111827,
-    #1e1b4b
-    );
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    padding:40px;
-}
-
-.container{
-
-    width:100%;
-    max-width:1000px;
-
-    background:rgba(255,255,255,0.05);
-
-    border:1px solid rgba(255,255,255,0.1);
-
-    backdrop-filter:blur(20px);
-
-    border-radius:30px;
-
-    padding:40px;
-
-    box-shadow:
-    0 0 30px rgba(59,130,246,0.3),
-    0 0 60px rgba(168,85,247,0.2);
-
-    animation:fadeIn 1s ease;
-}
-
-@keyframes fadeIn{
-
-    from{
-        opacity:0;
-        transform:translateY(30px);
-    }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
-
-.title{
-
-    text-align:center;
-    margin-bottom:40px;
-}
-
-.title h1{
-
-    font-size:45px;
-    font-weight:700;
-
-    background:
-    linear-gradient(
-    to right,
-    #3b82f6,
-    #ef4444,
-    #a855f7
-    );
-
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
-
-.title p{
-
-    color:#cbd5e1;
-    margin-top:10px;
-}
-
-.form-grid{
-
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:25px;
-}
-
-.input-box{
-
-    display:flex;
-    flex-direction:column;
-}
-
-.input-box label{
-
-    color:white;
-    margin-bottom:10px;
-    font-weight:500;
-}
-
-.input-box input,
-.input-box select{
-
-    padding:15px;
-
-    border:none;
-    outline:none;
-
-    border-radius:15px;
-
-    background:rgba(255,255,255,0.08);
-
-    color:white;
-
-    font-size:15px;
-
-    transition:0.3s;
-
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-}
-
-.input-box select option{
-
-    background:#1e293b;
-    color:white;
-}
-
-.input-box input:focus,
-.input-box select:focus{
-
-    border:1px solid #3b82f6;
-
-    box-shadow:
-    0 0 10px #3b82f6,
-    0 0 20px rgba(59,130,246,0.5);
-}
-
-.full{
-
-    grid-column:1/3;
-}
-
-button{
-
-    width:100%;
-
-    padding:18px;
-
-    border:none;
-
-    border-radius:18px;
-
-    background:
-    linear-gradient(
-    90deg,
-    #3b82f6,
-    #ef4444,
-    #a855f7
-    );
-
-    color:white;
-
-    font-size:18px;
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:0.4s;
-
-    margin-top:20px;
-}
-
-button:hover{
-
-    transform:translateY(-3px) scale(1.02);
-
-    box-shadow:
-    0 0 20px rgba(59,130,246,0.6),
-    0 0 40px rgba(168,85,247,0.4);
-}
-
-.result{
-
-    margin-top:40px;
-
-    background:#0f172a;
-
-    border-radius:20px;
-
-    padding:25px;
-
-    border-left:5px solid #3b82f6;
-}
-
-.result h2{
-
-    color:#3b82f6;
-    margin-bottom:20px;
-}
-
-.result pre{
-
-    color:#e2e8f0;
-
-    white-space:pre-wrap;
-
-    line-height:1.6;
-
-    font-size:15px;
-}
-
-.footer{
-
-    margin-top:30px;
-
-    text-align:center;
-
-    color:#94a3b8;
-}
-
-@media(max-width:768px){
-
-    .form-grid{
-
-        grid-template-columns:1fr;
-    }
-
-    .full{
-
-        grid-column:1/2;
-    }
-
-    .title h1{
-
-        font-size:32px;
-    }
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cisco AI Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3), 0 0 60px rgba(168, 85, 247, 0.2);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title h1 {
+            font-size: 45px;
+            font-weight: 700;
+            background: linear-gradient(to right, #3b82f6, #ef4444, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title p {
+            color: #cbd5e1;
+            margin-top: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .select-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .select-container::after {
+            content: '▼';
+            font-size: 12px;
+            color: #cbd5e1;
+            position: absolute;
+            right: 20px;
+            bottom: 18px;
+            pointer-events: none;
+        }
+
+        .input-box label {
+            color: white;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .input-box input,
+        .input-box select {
+            padding: 15px;
+            border: 1px solid transparent;
+            outline: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 15px;
+            transition: 0.3s;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .input-box select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .input-box input:focus,
+        .input-box select:focus {
+            border: 1px solid #3b82f6;
+            box-shadow: 0 0 10px #3b82f6, 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .full {
+            grid-column: 1 / 3;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(90deg, #3b82f6, #ef4444, #a855f7);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.4s;
+            margin-top: 30px;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(168, 85, 247, 0.4);
+        }
+
+        .result {
+            margin-top: 40px;
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 25px;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .result h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+
+        .result pre {
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        @media(max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .full {
+                grid-column: 1 / 2;
+            }
+            .title h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
-
     <div class="title">
-
         <h1>⚡ Cisco AI Generator</h1>
-
-        <p>
-            Generador Inteligente Cisco IOS con IA
-        </p>
-
+        <p>Generador Inteligente Cisco IOS con IA</p>
     </div>
 
     <form method="POST">
-
         <div class="form-grid">
-
-            <div class="input-box full">
-
-                <label>Tipo de Configuración</label>
-
-                <select name="opcion">
-
+            <div class="input-box full select-container">
+                <label for="opcion">Tipo de Configuración</label>
+                <select name="opcion" id="opcion">
                     <option value="vlan">VLAN</option>
-
                     <option value="ospf">OSPF</option>
-
                     <option value="subnetting">SUBNETTING</option>
-
                     <option value="static">STATIC ROUTE</option>
-
                     <option value="dhcp">DHCP</option>
-
                     <option value="acl">ACL</option>
-
                 </select>
-
             </div>
 
-            <div class="input-box">
-
+            <div class="input-box grupo-form" id="grupo-vlan-1">
                 <label>ID VLAN</label>
-
-                <input
-                type="text"
-                name="vlan"
-                placeholder="10">
+                <input type="text" name="vlan" placeholder="10">
             </div>
-
-            <div class="input-box">
-
+            <div class="input-box grupo-form" id="grupo-vlan-2">
                 <label>Nombre VLAN</label>
-
-                <input
-                type="text"
-                name="nombre"
-                placeholder="ventas">
+                <input type="text" name="nombre" placeholder="ventas">
             </div>
-
-            <div class="input-box full">
-
+            <div class="input-box full grupo-form" id="grupo-vlan-3">
                 <label>Puerto</label>
-
-                <input
-                type="text"
-                name="puerto"
-                placeholder="fa0/1">
+                <input type="text" name="puerto" placeholder="fa0/1">
             </div>
 
-            <div class="input-box">
-
+            <div class="input-box grupo-form hidden" id="grupo-ospf-1">
                 <label>Proceso OSPF</label>
-
-                <input
-                type="text"
-                name="proceso"
-                placeholder="1">
+                <input type="text" name="proceso" placeholder="1">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-ospf-2">
+                <label>Red</label>
+                <input type="text" name="red" placeholder="192.168.1.0">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-ospf-3">
+                <label>Área</label>
+                <input type="text" name="area" placeholder="0">
             </div>
 
-            <div class="input-box">
-
-                <label>Red OSPF</label>
-
-                <input
-                type="text"
-                name="red"
-                placeholder="192.168.1.0">
+            <div class="input-box grupo-form hidden" id="grupo-subnetting-1">
+                <label>Red Base</label>
+                <input type="text" name="red_base" placeholder="192.168.1.0/24">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-subnetting-2">
+                <label>Cantidad de Subredes</label>
+                <input type="text" name="subredes" placeholder="4">
             </div>
 
-            <div class="input-box full">
-
-                <label>Área OSPF</label>
-
-                <input
-                type="text"
-                name="area"
-                placeholder="0">
+            <div class="input-box grupo-form hidden" id="grupo-static-1">
+                <label>Red Destino</label>
+                <input type="text" name="red_destino" placeholder="10.0.0.0">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-static-2">
+                <label>Máscara</label>
+                <input type="text" name="mascara" placeholder="255.255.255.0">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-static-3">
+                <label>Gateway</label>
+                <input type="text" name="gateway" placeholder="192.168.1.1">
             </div>
 
+            <div class="input-box grupo-form hidden" id="grupo-dhcp-1">
+                <label>Nombre Pool DHCP</label>
+                <input type="text" name="pool" placeholder="MI_POOL">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-dhcp-2">
+                <label>Red DHCP</label>
+                <input type="text" name="red_dhcp" placeholder="192.168.1.0">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-dhcp-3">
+                <label>Máscara DHCP</label>
+                <input type="text" name="mascara_dhcp" placeholder="255.255.255.0">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-dhcp-4">
+                <label>Gateway DHCP</label>
+                <input type="text" name="gateway_dhcp" placeholder="192.168.1.1">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-acl-1">
+                <label>Número ACL</label>
+                <input type="text" name="numero_acl" placeholder="10">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-acl-2">
+                <label>Acción (permit/deny)</label>
+                <input type="text" name="permiso" placeholder="permit">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-acl-3">
+                <label>Red ACL</label>
+                <input type="text" name="red_acl" placeholder="192.168.1.0">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-acl-4">
+                <label>Wildcard</label>
+                <input type="text" name="wildcard" placeholder="0.0.0.255">
+            </div>
         </div>
 
-        <button type="submit">
-            🚀 Generar Configuración
-        </button>
-
+        <button type="submit">🚀 Generar Configuración</button>
     </form>
 
     {% if resultado %}
-
     <div class="result">
-
         <h2>📡 Configuración Generada</h2>
-
         <pre>{{ resultado }}</pre>
-
     </div>
-
     {% endif %}
 
     <div class="footer">
-
         Cisco Groq Generator © 2026
-
     </div>
-
 </div>
+
+<script>
+    const selector = document.getElementById('opcion');
+    const todosLosCampos = document.querySelectorAll('.grupo-form');
+
+    selector.addEventListener('change', function() {
+        const opcionSeleccionada = this.value;
+
+        // Ocultar todos los campos dinámicos
+        todosLosCampos.forEach(campo => {
+            campo.classList.add('hidden');
+        });
+
+        // Mostrar solo los de la opción actual
+        const camposVisibles = document.querySelectorAll(`[id^="grupo-${opcionSeleccionada}"]`);
+        camposVisibles.forEach(campo => {
+            campo.classList.remove('hidden');
+        });
+    });
+</script>
 
 </body>
 </html>
