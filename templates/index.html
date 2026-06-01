@@ -201,12 +201,18 @@
             <div class="input-box full select-container">
                 <label for="opcion">Tipo de Configuración</label>
                 <select name="opcion" id="opcion">
-                    <option value="vlan">VLAN</option>
-                    <option value="ospf">OSPF</option>
-                    <option value="subnetting">SUBNETTING</option>
-                    <option value="static">STATIC ROUTE</option>
-                    <option value="dhcp">DHCP</option>
-                    <option value="acl">ACL</option>
+                    <option value="vlan">1. VLAN</option>
+                    <option value="ospf">2. OSPF</option>
+                    <option value="subnetting">3. SUBNETTING</option>
+                    <option value="static">4. STATIC ROUTE</option>
+                    <option value="dhcp">5. DHCP</option>
+                    <option value="acl">6. ACL</option>
+                    <option value="port_security">7. PORT-SECURITY</option>
+                    <option value="nat">8. NAT</option>
+                    <option value="etherchannel">9. ETHERCHANNEL</option>
+                    <option value="ssh">10. SSH / VTY</option>
+                    <option value="spanning_tree">11. SPANNING TREE (STP)</option>
+                    <option value="inter_vlan">12. INTER-VLAN (ROUTER ON A STICK)</option>
                 </select>
             </div>
 
@@ -219,7 +225,7 @@
                 <input type="text" name="nombre" placeholder="ventas">
             </div>
             <div class="input-box full grupo-form" id="grupo-vlan-3">
-                <label>Puerto</label>
+                <label>Puerto de Acceso</label>
                 <input type="text" name="puerto" placeholder="fa0/1">
             </div>
 
@@ -254,7 +260,7 @@
                 <input type="text" name="mascara" placeholder="255.255.255.0">
             </div>
             <div class="input-box full grupo-form hidden" id="grupo-static-3">
-                <label>Gateway</label>
+                <label>Gateway / Siguiente Salto</label>
                 <input type="text" name="gateway" placeholder="192.168.1.1">
             </div>
 
@@ -276,7 +282,7 @@
             </div>
 
             <div class="input-box grupo-form hidden" id="grupo-acl-1">
-                <label>Número ACL</label>
+                <label>Número / Nombre ACL</label>
                 <input type="text" name="numero_acl" placeholder="10">
             </div>
             <div class="input-box grupo-form hidden" id="grupo-acl-2">
@@ -284,12 +290,86 @@
                 <input type="text" name="permiso" placeholder="permit">
             </div>
             <div class="input-box grupo-form hidden" id="grupo-acl-3">
-                <label>Red ACL</label>
+                <label>Red Origen</label>
                 <input type="text" name="red_acl" placeholder="192.168.1.0">
             </div>
             <div class="input-box grupo-form hidden" id="grupo-acl-4">
                 <label>Wildcard</label>
                 <input type="text" name="wildcard" placeholder="0.0.0.255">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-port_security-1">
+                <label>Interfaz</label>
+                <input type="text" name="ps_interfaz" placeholder="fa0/1">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-port_security-2">
+                <label>Máximo MACs</label>
+                <input type="text" name="ps_max" placeholder="1">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-port_security-3">
+                <label>Violación (protect/restrict/shutdown)</label>
+                <input type="text" name="ps_violacion" placeholder="shutdown">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-nat-1">
+                <label>Interfaz Interna (Inside)</label>
+                <input type="text" name="nat_inside" placeholder="g0/0">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-nat-2">
+                <label>Interfaz Externa (Outside)</label>
+                <input type="text" name="nat_outside" placeholder="g0/1">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-nat-3">
+                <label>Red Local a Traducir</label>
+                <input type="text" name="nat_red" placeholder="192.168.1.0 0.0.0.255">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-etherchannel-1">
+                <label>Rango de Interfaces</label>
+                <input type="text" name="eth_interfaces" placeholder="fa0/1 - 2">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-etherchannel-2">
+                <label>Número de Channel-Group</label>
+                <input type="text" name="eth_grupo" placeholder="1">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-etherchannel-3">
+                <label>Modo (active/passive/desirable/auto/on)</label>
+                <input type="text" name="eth_modo" placeholder="active">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-ssh-1">
+                <label>Dominio IP</label>
+                <input type="text" name="ssh_domain" placeholder="empresa.local">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-ssh-2">
+                <label>Usuario / Contraseña local</label>
+                <input type="text" name="ssh_user" placeholder="admin password cisco">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-spanning_tree-1">
+                <label>Modo STP (pvst / rapid-pvst)</label>
+                <input type="text" name="stp_modo" placeholder="rapid-pvst">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-spanning_tree-2">
+                <label>ID VLAN afectada</label>
+                <input type="text" name="stp_vlan" placeholder="10">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-spanning_tree-3">
+                <label>Prioridad (o "root primary")</label>
+                <input type="text" name="stp_prioridad" placeholder="root primary">
+            </div>
+
+            <div class="input-box grupo-form hidden" id="grupo-inter_vlan-1">
+                <label>Interfaz Física del Router</label>
+                <input type="text" name="iv_interfaz" placeholder="g0/0">
+            </div>
+            <div class="input-box grupo-form hidden" id="grupo-inter_vlan-2">
+                <label>Número Subinterfaz / VLAN</label>
+                <input type="text" name="iv_vlan" placeholder="10">
+            </div>
+            <div class="input-box full grupo-form hidden" id="grupo-inter_vlan-3">
+                <label>IP de la Subinterfaz y Máscara</label>
+                <input type="text" name="iv_ip" placeholder="192.168.10.1 255.255.255.0">
             </div>
         </div>
 
@@ -320,8 +400,8 @@
             campo.classList.add('hidden');
         });
 
-        // Mostrar solo los de la opción actual
-        const camposVisibles = document.querySelectorAll(`[id^="grupo-${opcionSeleccionada}"]`);
+        // Mostrar solo los de la opción actual usando coincidencia parcial de ID
+        const camposVisibles = document.querySelectorAll(`[id^="grupo-${opcionSeleccionada}-"]`);
         camposVisibles.forEach(campo => {
             campo.classList.remove('hidden');
         });
