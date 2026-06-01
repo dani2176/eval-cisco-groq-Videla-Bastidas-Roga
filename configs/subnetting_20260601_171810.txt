@@ -1,0 +1,29 @@
+ip subnet-zero
+interface Loopback0
+ip address 192.168.1.1 255.255.255.252
+interface Loopback1
+ip address 192.168.1.5 255.255.255.252
+interface Loopback2
+ip address 192.168.1.9 255.255.255.252
+interface Loopback3
+ip address 192.168.1.13 255.255.255.252
+
+Subred 1: 192.168.1.0/30
+Máscara: 255.255.255.252
+Gateway: 192.168.1.1
+Hosts disponibles: 2
+
+Subred 2: 192.168.1.4/30
+Máscara: 255.255.255.252
+Gateway: 192.168.1.5
+Hosts disponibles: 2
+
+Subred 3: 192.168.1.8/30
+Máscara: 255.255.255.252
+Gateway: 192.168.1.9
+Hosts disponibles: 2
+
+Subred 4: 192.168.1.12/30
+Máscara: 255.255.255.252
+Gateway: 192.168.1.13
+Hosts disponibles: 2

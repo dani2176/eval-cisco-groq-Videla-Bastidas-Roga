@@ -18,24 +18,29 @@ if not api_key:
 client = Groq(api_key=api_key)
 
 def calcular_red(red_cidr):
-    red = ipaddress.ip_network(red_cidr, strict=False)
+    try:
+        red = ipaddress.ip_network(red_cidr, strict=False)
 
-    mascara = str(red.netmask)
+        mascara = str(red.netmask)
 
-    wildcard = ".".join(
-        str(255 - int(octeto))
-        for octeto in mascara.split(".")
-    )
+        wildcard = ".".join(
+            str(255 - int(octeto))
+            for octeto in mascara.split(".")
+        )
 
-    gateway = str(list(red.hosts())[0])
+        gateway = str(next(red.hosts()))
 
-    return {
-        "red": str(red.network_address),
-        "mascara": mascara,
-        "wildcard": wildcard,
-        "gateway": gateway
-    }
+        return {
+            "red": str(red.network_address),
+            "mascara": mascara,
+            "wildcard": wildcard,
+            "gateway": gateway
+        }
 
+    except Exception:
+        print("ERROR: Red inválida")
+        exit()
+        
 # =========================
 # CREAR CARPETA CONFIGS
 # =========================
