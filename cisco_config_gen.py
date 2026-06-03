@@ -40,7 +40,58 @@ def calcular_red(red_cidr):
     except Exception:
         print("ERROR: Red inválida")
         exit()
-        
+
+def validar_ip(ip):
+
+    try:
+        ipaddress.ip_address(ip)
+        return True
+
+    except ValueError:
+        return False
+
+def validar_interfaz(interfaz):
+
+    prefijos_validos = [
+        "FastEthernet",
+        "GigabitEthernet",
+        "Fa",
+        "Gi"
+    ]
+
+    return any(
+        interfaz.startswith(prefijo)
+        for prefijo in prefijos_validos
+    )
+
+def generar_vlans(cantidad):
+
+    nombres = [
+        "VENTAS",
+        "RRHH",
+        "TI",
+        "FINANZAS",
+        "GERENCIA",
+        "SOPORTE",
+        "SEGURIDAD",
+        "PRODUCCION"
+    ]
+
+    resultado = []
+
+    for i in range(cantidad):
+
+        vlan_id = (i + 1) * 10
+
+        resultado.append({
+            "vlan": vlan_id,
+            "nombre": nombres[i % len(nombres)],
+            "red": f"192.168.{vlan_id}.0/24",
+            "gateway": f"192.168.{vlan_id}.1"
+        })
+
+    return resultado   
+
 # =========================
 # CREAR CARPETA CONFIGS
 # =========================
@@ -80,6 +131,8 @@ print("9. TRUNK")
 print("10. INTER-VLAN ROUTING")
 print("11. NAT")
 print("12. ETHERCHANNEL")
+print("13. DISEÑO AUTOMÁTICO DE RED")
+print("14. VER HISTORIAL")
 
 opcion = input("\nSeleccione opción: ")
 
@@ -91,27 +144,32 @@ tipo = ""
 # =========================
 if opcion == "1":
 
-    vlan = input("ID VLAN: ")
+    cantidad = input("Cantidad de VLANs: ")
 
-    if not vlan.isdigit():
-        print("ERROR: VLAN inválida")
+    if not cantidad.isdigit():
+        print("ERROR: valor inválido")
         exit()
 
-    vlan = int(vlan)
+    cantidad = int(cantidad)
 
-    if vlan < 1 or vlan > 4094:
-        print("ERROR: VLAN fuera de rango")
-        exit()
+    vlans = generar_vlans(cantidad)
 
-    nombre = input("Nombre VLAN: ")
-    puerto = input("Puerto: ")
+    print("\n===== VLANS GENERADAS =====")
+
+    for vlan in vlans:
+        print(
+            f"VLAN {vlan['vlan']} - "
+            f"{vlan['nombre']} - "
+            f"{vlan['red']} - "
+            f"GW {vlan['gateway']}"
+        )
 
     tipo = "vlan"
 
     prompt = f"""
-Crear VLAN {vlan}
-Nombre {nombre}
-Puerto {puerto}
+Generar configuración Cisco IOS para:
+
+{vlans}
 """
 
 # =========================
@@ -201,17 +259,27 @@ Mostrar:
 # =========================
 elif opcion == "4":
 
-    red_destino = input("Red destino: ")
-    mascara = input("Máscara: ")
-    gateway = input("Gateway: ")
+    red_cidr = input("Red destino CIDR (ej: 10.0.0.0/24): ")
+
+    datos = calcular_red(red_cidr)
+
+    gateway = input("Gateway siguiente salto: ")
+
+    if not validar_ip(gateway):
+        print("ERROR: Gateway inválido")
+        exit()
+
+    print("\n===== DATOS CALCULADOS =====")
+    print("Red:", datos["red"])
+    print("Máscara:", datos["mascara"])
 
     tipo = "static_route"
 
     prompt = f"""
-Configurar ruta estática:
+Configurar ruta estática Cisco:
 
-Red destino {red_destino}
-Máscara {mascara}
+Red destino {datos['red']}
+Máscara {datos['mascara']}
 Gateway {gateway}
 """
 
@@ -221,9 +289,20 @@ Gateway {gateway}
 elif opcion == "5":
 
     pool = input("Nombre pool DHCP: ")
-    red = input("Red: ")
-    mascara = input("Máscara: ")
-    gateway = input("Gateway: ")
+
+    if not pool.strip():
+        print("ERROR: nombre de pool inválido")
+        exit()
+
+    red_cidr = input("Red CIDR (ej: 192.168.1.0/24): ")
+
+    datos = calcular_red(red_cidr)
+
+    print("\n===== DATOS CALCULADOS =====")
+    print("Red:", datos["red"])
+    print("Máscara:", datos["mascara"])
+    print("Gateway sugerido:", datos["gateway"])
+    print("Wildcard:", datos["wildcard"])
 
     tipo = "dhcp"
 
@@ -231,20 +310,32 @@ elif opcion == "5":
 Configurar DHCP Cisco:
 
 Pool {pool}
-Red {red}
-Máscara {mascara}
-Gateway {gateway}
-"""
 
+Red {datos['red']}
+Máscara {datos['mascara']}
+Gateway {datos['gateway']}
+"""
+    
 # =========================
 # ACL
 # =========================
 elif opcion == "6":
 
     numero_acl = input("Número ACL: ")
-    permiso = input("permit/deny: ")
-    red = input("Red: ")
-    wildcard = input("Wildcard: ")
+
+    if not numero_acl.isdigit():
+        print("ERROR: número ACL inválido")
+        exit()
+
+    permiso = input("permit/deny: ").lower()
+
+    if permiso not in ["permit", "deny"]:
+        print("ERROR: acción inválida")
+        exit()
+
+    red_cidr = input("Red CIDR (ej: 192.168.1.0/24): ")
+
+    datos = calcular_red(red_cidr)
 
     tipo = "acl"
 
@@ -253,8 +344,9 @@ Configurar ACL Cisco:
 
 ACL {numero_acl}
 Acción {permiso}
-Red {red}
-Wildcard {wildcard}
+
+Red {datos['red']}
+Wildcard {datos['wildcard']}
 """
 
 # =========================
@@ -263,6 +355,11 @@ Wildcard {wildcard}
 elif opcion == "7":
 
     interfaz = input("Interfaz (ej. FastEthernet0/1): ")
+
+    if not validar_interfaz(interfaz):
+        print("ERROR: interfaz inválida")
+        exit()
+
     max_mac = input("Máximo de MACs permitidas: ")
     violacion = input("Acción (protect/restrict/shutdown): ")
 
@@ -286,6 +383,22 @@ elif opcion == "8":
     usuario = input("Usuario: ")
     password = input("Password: ")
 
+    if not hostname.strip():
+        print("ERROR: hostname inválido")
+        exit()
+
+    if not dominio.strip():
+        print("ERROR: dominio inválido")
+        exit()
+
+    if not usuario.strip():
+        print("ERROR: usuario inválido")
+        exit()
+
+    if len(password) < 4:
+        print("ERROR: password demasiado corta")
+        exit()
+
     tipo = "ssh"
 
     prompt = f"""
@@ -303,7 +416,16 @@ Password {password}
 elif opcion == "9":
 
     interfaz = input("Interfaz trunk: ")
+
+    if not validar_interfaz(interfaz):
+        print("ERROR: interfaz inválida")
+        exit()
+
     vlans = input("VLANs permitidas (ej: 10,20,30): ")
+
+    if not vlans.strip():
+        print("ERROR: VLANs vacías")
+        exit()
 
     tipo = "trunk"
 
@@ -320,7 +442,15 @@ VLANs permitidas {vlans}
 elif opcion == "10":
 
     vlan = input("Número VLAN: ")
-    gateway = input("Gateway: ")
+
+    red_cidr = input("Red CIDR (ej: 192.168.10.0/24): ")
+
+    datos = calcular_red(red_cidr)
+
+    print("\n===== DATOS CALCULADOS =====")
+    print("Red:", datos["red"])
+    print("Máscara:", datos["mascara"])
+    print("Gateway:", datos["gateway"])
 
     tipo = "inter_vlan"
 
@@ -328,7 +458,10 @@ elif opcion == "10":
 Configurar Inter-VLAN Routing Cisco:
 
 VLAN {vlan}
-Gateway {gateway}
+
+Red {datos['red']}
+Mascara {datos['mascara']}
+Gateway {datos['gateway']}
 """
 
 # =========================
@@ -336,17 +469,27 @@ Gateway {gateway}
 # =========================
 elif opcion == "11":
 
-    red = input("Red interna: ")
-    wildcard = input("Wildcard: ")
+    red_cidr = input("Red interna CIDR (ej: 192.168.1.0/24): ")
+
+    datos = calcular_red(red_cidr)
+
     interfaz = input("Interfaz externa: ")
+
+    if not validar_interfaz(interfaz):
+        print("ERROR: interfaz inválida")
+        exit()
+
+    print("\n===== DATOS CALCULADOS =====")
+    print("Red:", datos["red"])
+    print("Wildcard:", datos["wildcard"])
 
     tipo = "nat"
 
     prompt = f"""
 Configurar NAT Cisco:
 
-Red interna {red}
-Wildcard {wildcard}
+Red interna {datos['red']}
+Wildcard {datos['wildcard']}
 Interfaz externa {interfaz}
 """
 
@@ -355,8 +498,19 @@ Interfaz externa {interfaz}
 # =========================
 elif opcion == "12":
 
-    interfaces = input("Interfaces (ej: Fa0/1-Fa0/2): ")
+    interfaces = input(
+        "Interfaces (ej: Fa0/1-Fa0/2): "
+    )
+
     grupo = input("Número de grupo: ")
+
+    if not grupo.isdigit():
+        print("ERROR: grupo inválido")
+        exit()
+
+    if "-" not in interfaces:
+        print("ERROR: formato inválido")
+        exit()
 
     tipo = "etherchannel"
 
@@ -366,7 +520,55 @@ Configurar EtherChannel Cisco:
 Interfaces {interfaces}
 Grupo {grupo}
 """
+
+# =========================
+# DISEÑO AUTOMÁTICO DE RED
+# =========================
+elif opcion == "13":
+
+    descripcion = input(
+        "Describe la red que deseas crear: "
+    )
+
+    tipo = "diseno_red"
+
+    prompt = f"""
+Diseña una red Cisco IOS completa.
+
+Requerimientos:
+{descripcion}
+
+Incluye:
+- VLAN
+- DHCP
+- OSPF
+- ACL
+- NAT
+- SSH
+- Trunk
+- Inter-VLAN Routing
+
+Genera únicamente comandos Cisco IOS.
+"""
     
+# =========================
+# VER HISTORIAL
+# =========================
+elif opcion == "14":
+
+    print("\n===== HISTORIAL =====\n")
+
+    archivos = os.listdir("configs")
+
+    if not archivos:
+        print("No hay configuraciones guardadas.")
+        exit()
+
+    for i, archivo in enumerate(sorted(archivos), start=1):
+        print(f"{i}. {archivo}")
+
+    exit()
+
 # =========================
 # OPCIÓN INVÁLIDA
 # =========================

@@ -1,0 +1,5 @@
+ip access-list standard NAT
+permit 69.69.69.0 0.0.0.255
+ip nat inside source list NAT interface f0/9 overload
+ip nat inside
+ip nat outside
