@@ -1,218 +1,237 @@
-from flask import Flask, render_template, request
+import os
+import ipaddress
+from flask import Flask, render_template, request, redirect, url_for
 from groq import Groq
 from dotenv import load_dotenv
 from datetime import datetime
-import os
 
-# cargar variables .env
+# Cargar variables .env
 load_dotenv()
-
-# obtener API key
 api_key = os.getenv("GROQ_API_KEY")
 
-# validar key
 if not api_key:
     print("ERROR: No se encontró GROQ_API_KEY")
     exit()
 
-# cliente Groq
 client = Groq(api_key=api_key)
 
-# ====================================
-# FUNCIONES DE AUTOCOMPLETADO IA
-# ====================================
-
-def calcular_wildcard(mascara):
-    partes = mascara.split(".")
-    return ".".join(str(255 - int(x)) for x in partes)
-
-def generar_red_automatica():
-    import random
-
-    tercer_octeto = random.randint(1, 254)
-
-    return {
-        "red": f"192.168.{tercer_octeto}.0",
-        "mascara": "255.255.255.0",
-        "wildcard": "0.0.0.255",
-        "gateway": f"192.168.{tercer_octeto}.1",
-        "area": "0",
-        "proceso": "1"
-    }
-
-# app flask
 app = Flask(__name__)
 
-# crear carpeta configs
 if not os.path.exists("configs"):
     os.makedirs("configs")
 
-# prompt sistema
+# Funciones de lógica interna (Se mantienen idénticas a tus funciones originales)
+def calcular_red(red_cidr):
+    try:
+        red = ipaddress.ip_network(red_cidr, strict=False)
+        mascara = str(red.netmask)
+        wildcard = ".".join(str(255 - int(octeto)) for octeto in mascara.split("."))
+        gateway = str(next(red.hosts()))
+        return {
+            "red": str(red.network_address),
+            "mascara": mascara,
+            "wildcard": wildcard,
+            "gateway": gateway
+        }
+    except Exception:
+        return None
+
+def generar_vlans(cantidad):
+    nombres = ["VENTAS", "RRHH", "TI", "FINANZAS", "GERENCIA", "SOPORTE", "SEGURIDAD", "PRODUCCION"]
+    resultado = []
+    for i in range(cantidad):
+        vlan_id = (i + 1) * 10
+        resultado.append({
+            "vlan": vlan_id,
+            "nombre": nombres[i % len(nombres)],
+            "red": f"192.168.{vlan_id}.0/24",
+            "gateway": f"192.168.{vlan_id}.1"
+        })
+    return resultado   
+
 SYSTEM_PROMPT = """
-Eres experto en Cisco IOS.
-
-Debes generar SOLO comandos Cisco IOS válidos.
-
-NO expliques nada.
-NO uses markdown.
-NO uses texto extra.
+Eres un experto en Cisco IOS.
+Tu tarea es generar SOLO configuraciones Cisco IOS válidas.
+REGLAS:
+- SOLO devolver comandos Cisco IOS
+- NO explicar nada
+- NO usar markdown
+- NO usar bloques de código
+- NO agregar texto extra
+- La salida debe estar lista para copiar y pegar
 """
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-
     resultado = ""
+    # Obtener el historial para listarlo siempre en la interfaz si es necesario
+    archivos = sorted(os.listdir("configs"), reverse=True)
 
     if request.method == "POST":
-
         opcion = request.form.get("opcion")
-
         prompt = ""
         tipo = ""
 
-        # VLAN
-        if opcion == "vlan":
+        # 1. VLAN
+        if opcion == "1":
+            cantidad = request.form.get("vlan_cantidad", "1")
+            if cantidad.isdigit():
+                vlans = generar_vlans(int(cantidad))
+                tipo = "vlan"
+                prompt = f"Generar configuración Cisco IOS para:\n{vlans}"
+            else:
+                resultado = "ERROR: Cantidad de VLANs inválida"
 
-            vlan = request.form.get("vlan")
-            nombre = request.form.get("nombre")
-            puerto = request.form.get("puerto")
+        # 2. OSPF
+        elif opcion == "2":
+            proceso = request.form.get("ospf_proceso")
+            red_cidr = request.form.get("ospf_red_cidr")
+            area = request.form.get("ospf_area")
+            datos = calcular_red(red_cidr)
+            
+            if datos:
+                tipo = "ospf"
+                prompt = f"Configurar OSPF:\nProceso {proceso}\nRed {datos['red']}\nMascara {datos['mascara']}\nWildcard {datos['wildcard']}\nGateway {datos['gateway']}\nÁrea {area}"
+            else:
+                resultado = "ERROR: Formato de Red CIDR inválido"
 
-            tipo = "vlan"
+        # 3. SUBNETTING
+        elif opcion == "3":
+            red = request.form.get("sub_red")
+            prefijo = request.form.get("sub_prefijo")
+            subredes = request.form.get("sub_subredes")
+            datos_red = calcular_red(f"{red}/{prefijo}")
+            
+            if datos_red:
+                tipo = "subnetting"
+                prompt = f"Generar subnetting Cisco:\nRed base {red}/{prefijo}\nCantidad subredes {subredes}\n\nMostrar:\n- Subred\n- Máscara\n- Gateway\n- Hosts disponibles"
+            else:
+                resultado = "ERROR: Prefijo o Red Base inválida"
 
-            prompt = f"""
-            Crear VLAN {vlan}
-            Nombre {nombre}
-            Puerto {puerto}
-            """
+        # 4. STATIC ROUTE
+        elif opcion == "4":
+            red_cidr = request.form.get("static_red_cidr")
+            gateway = request.form.get("static_gateway")
+            datos = calcular_red(red_cidr)
+            
+            if datos:
+                tipo = "static_route"
+                prompt = f"Configurar ruta estática Cisco:\nRed destino {datos['red']}\nMáscara {datos['mascara']}\nGateway {gateway}"
+            else:
+                resultado = "ERROR: Red destino inválida"
 
-        # OSPF
-        elif opcion == "ospf":
+        # 5. DHCP
+        elif opcion == "5":
+            pool = request.form.get("dhcp_pool")
+            red_cidr = request.form.get("dhcp_red_cidr")
+            datos = calcular_red(red_cidr)
+            
+            if datos:
+                tipo = "dhcp"
+                prompt = f"Configurar DHCP Cisco:\nPool {pool}\nRed {datos['red']}\nMáscara {datos['mascara']}\nGateway {datos['gateway']}"
+            else:
+                resultado = "ERROR: Red DHCP inválida"
 
-            proceso = request.form.get("proceso")
-            red = request.form.get("red")
-            area = request.form.get("area")
+        # 6. ACL
+        elif opcion == "6":
+            numero_acl = request.form.get("acl_numero")
+            permiso = request.form.get("acl_permiso")
+            red_cidr = request.form.get("acl_red_cidr")
+            datos = calcular_red(red_cidr)
+            
+            if datos:
+                tipo = "acl"
+                prompt = f"Configurar ACL Cisco:\nACL {numero_acl}\nAcción {permiso}\nRed {datos['red']}\nWildcard {datos['wildcard']}"
+            else:
+                resultado = "ERROR: Red para ACL inválida"
 
-            tipo = "ospf"
+        # 7. PORT SECURITY
+        elif opcion == "7":
+            interfaz = request.form.get("ps_interfaz")
+            max_mac = request.form.get("ps_max_mac")
+            violacion = request.form.get("ps_violacion")
+            tipo = "port_security"
+            prompt = f"Configurar Port-Security Cisco:\nInterfaz {interfaz}\nMáximo MAC {max_mac}\nViolación {violacion}"
 
-            prompt = f"""
-            Configurar OSPF:
+        # 8. SSH
+        elif opcion == "8":
+            hostname = request.form.get("ssh_hostname")
+            dominio = request.form.get("ssh_dominio")
+            usuario = request.form.get("ssh_usuario")
+            password = request.form.get("ssh_password")
+            tipo = "ssh"
+            prompt = f"Configurar SSH Cisco:\nHostname {hostname}\nDominio {dominio}\nUsuario {usuario}\nPassword {password}"
 
-            proceso {proceso}
-            red {red}
-            area {area}
-            """
+        # 9. TRUNK
+        elif opcion == "9":
+            interfaz = request.form.get("trunk_interfaz")
+            vlans_permitidas = request.form.get("trunk_vlans")
+            tipo = "trunk"
+            prompt = f"Configurar Trunk Cisco:\nInterfaz {interfaz}\nVLANs permitidas {vlans_permitidas}"
 
-        # SUBNETTING
-        elif opcion == "subnetting":
+        # 10. INTER-VLAN ROUTING
+        elif opcion == "10":
+            vlan = request.form.get("iv_vlan")
+            red_cidr = request.form.get("iv_red_cidr")
+            datos = calcular_red(red_cidr)
+            
+            if datos:
+                tipo = "inter_vlan"
+                prompt = f"Configurar Inter-VLAN Routing Cisco:\nVLAN {vlan}\nRed {datos['red']}\nMascara {datos['mascara']}\nGateway {datos['gateway']}"
+            else:
+                resultado = "ERROR: Red para Inter-VLAN inválida"
 
-            red_base = request.form.get("red_base")
-            subredes = request.form.get("subredes")
+        # 11. NAT
+        elif opcion == "11":
+            red_cidr = request.form.get("nat_red_cidr")
+            interfaz = request.form.get("nat_interfaz_ext")
+            datos = calcular_red(red_cidr)
+            
+            if datos:
+                tipo = "nat"
+                prompt = f"Configurar NAT Cisco:\nRed interna {datos['red']}\nWildcard {datos['wildcard']}\nInterfaz externa {interfaz}"
+            else:
+                resultado = "ERROR: Red interna de NAT inválida"
 
-            tipo = "subnetting"
+        # 12. ETHERCHANNEL
+        elif opcion == "12":
+            interfaces = request.form.get("eth_interfaces")
+            grupo = request.form.get("eth_grupo")
+            tipo = "etherchannel"
+            prompt = f"Configurar EtherChannel Cisco:\nInterfaces {interfaces}\nGrupo {grupo}"
 
-            prompt = f"""
-            Generar subnetting:
+        # 13. DISEÑO AUTOMÁTICO DE RED
+        elif opcion == "13":
+            descripcion = request.form.get("diseno_descripcion")
+            tipo = "diseno_red"
+            prompt = f"Diseña una red Cisco IOS completa.\nRequerimientos:\n{descripcion}\n\nIncluye:\n- VLAN\n- DHCP\n- OSPF\n- ACL\n- NAT\n- SSH\n- Trunk\n- Inter-VLAN Routing\n\nGenera únicamente comandos Cisco IOS."
 
-            red {red_base}
-            subredes {subredes}
-            """
+        # Procesar con Groq si no hay errores previos de validación de IPs
+        if prompt and not resultado.startswith("ERROR"):
+            try:
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.2,
+                    max_tokens=800
+                )
+                resultado = completion.choices[0].message.content
 
-        # STATIC ROUTE
-        elif opcion == "static":
+                # Guardar archivo histórico
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                archivo = f"configs/{tipo}_{timestamp}.txt"
+                with open(archivo, "w", encoding="utf-8") as f:
+                    f.write(resultado)
+                
+                # Actualizar lista de archivos tras guardar
+                archivos = sorted(os.listdir("configs"), reverse=True)
+            except Exception as e:
+                resultado = f"ERROR de conexión con la API: {e}"
 
-            red_destino = request.form.get("red_destino")
-            mascara = request.form.get("mascara")
-            gateway = request.form.get("gateway")
-
-            tipo = "static_route"
-
-            prompt = f"""
-            Configurar ruta estática:
-
-            red destino {red_destino}
-            mascara {mascara}
-            gateway {gateway}
-            """
-
-        # DHCP
-        elif opcion == "dhcp":
-
-            pool = request.form.get("pool")
-            red = request.form.get("red_dhcp")
-            mascara = request.form.get("mascara_dhcp")
-            gateway = request.form.get("gateway_dhcp")
-
-            tipo = "dhcp"
-
-            prompt = f"""
-            Configurar DHCP Cisco:
-
-            pool {pool}
-            red {red}
-            mascara {mascara}
-            gateway {gateway}
-            """
-
-        # ACL
-        elif opcion == "acl":
-
-            numero_acl = request.form.get("numero_acl")
-            permiso = request.form.get("permiso")
-            red_acl = request.form.get("red_acl")
-            wildcard = request.form.get("wildcard")
-
-            tipo = "acl"
-
-            prompt = f"""
-            Configurar ACL Cisco:
-
-            ACL {numero_acl}
-            accion {permiso}
-            red {red_acl}
-            wildcard {wildcard}
-            """
-
-        try:
-
-            completion = client.chat.completions.create(
-
-                model="llama-3.3-70b-versatile",
-
-                messages=[
-
-                    {
-                        "role": "system",
-                        "content": SYSTEM_PROMPT
-                    },
-
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-
-                temperature=0.2,
-                max_tokens=800
-            )
-
-            resultado = completion.choices[0].message.content
-
-            # guardar archivo
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            archivo = f"configs/{tipo}_{timestamp}.txt"
-
-            with open(archivo, "w", encoding="utf-8") as f:
-                f.write(resultado)
-
-        except Exception as e:
-
-            resultado = f"ERROR: {e}"
-
-    return render_template(
-        "index.html",
-        resultado=resultado
-    )
+    return render_template("index.html", resultado=resultado, archivos=archivos)
 
 if __name__ == "__main__":
     app.run(debug=True)
