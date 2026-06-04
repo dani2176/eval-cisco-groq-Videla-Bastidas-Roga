@@ -3,6 +3,8 @@ import ipaddress
 from groq import Groq
 from dotenv import load_dotenv
 from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 # =========================
 # CARGAR VARIABLES .ENV
@@ -582,20 +584,7 @@ else:
 try:
 
     stream = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        temperature=0.2,
-        max_tokens=800,
-        stream=True,
-        messages=[
-            {
-                "role": "system",
-                "content": system_prompt
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+        ...
     )
 
     print("\n===== CONFIGURACIÓN GENERADA =====\n")
@@ -617,8 +606,27 @@ try:
     with open(archivo, "w", encoding="utf-8") as f:
         f.write(respuesta)
 
-    print(f"\n\nConfiguración guardada en:")
+    pdf_file = archivo.replace(".txt", ".pdf")
+
+    doc = SimpleDocTemplate(pdf_file)
+
+    styles = getSampleStyleSheet()
+
+    contenido = [
+        Paragraph("Configuración Cisco IOS", styles["Title"]),
+        Paragraph(
+            respuesta.replace("\n", "<br/>"),
+            styles["BodyText"]
+        )
+    ]
+
+    doc.build(contenido)
+
+    print("\n\nConfiguración guardada en:")
     print(archivo)
+
+    print("PDF generado en:")
+    print(pdf_file)
 
 except Exception as e:
     print("\nERROR:", e)

@@ -4,6 +4,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from groq import Groq
 from dotenv import load_dotenv
 from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 # Cargar variables .env
 load_dotenv()
@@ -212,26 +214,59 @@ def index():
                 completion = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": prompt}
+                        {
+                            "role": "system",
+                            "content": SYSTEM_PROMPT
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
                     ],
                     temperature=0.2,
                     max_tokens=800
                 )
+
                 resultado = completion.choices[0].message.content
 
-                # Guardar archivo histórico
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 archivo = f"configs/{tipo}_{timestamp}.txt"
+
                 with open(archivo, "w", encoding="utf-8") as f:
                     f.write(resultado)
-                
-                # Actualizar lista de archivos tras guardar
-                archivos = sorted(os.listdir("configs"), reverse=True)
+
+                pdf_file = archivo.replace(".txt", ".pdf")
+
+                doc = SimpleDocTemplate(pdf_file)
+
+                styles = getSampleStyleSheet()
+
+                contenido = [
+                    Paragraph(
+                        "Configuración Cisco IOS",
+                        styles["Title"]
+                    ),
+                    Paragraph(
+                        resultado.replace("\n", "<br/>"),
+                        styles["BodyText"]
+                    )
+                ]
+
+                doc.build(contenido)
+
+                archivos = sorted(
+                    os.listdir("configs"),
+                    reverse=True
+                )
+
             except Exception as e:
                 resultado = f"ERROR de conexión con la API: {e}"
-
-    return render_template("index.html", resultado=resultado, archivos=archivos)
-
+       
+            return render_template(
+        "index.html",
+        resultado=resultado,
+        archivos=archivos
+    )
+print("LLEGO AL FINAL")
 if __name__ == "__main__":
     app.run(debug=True)

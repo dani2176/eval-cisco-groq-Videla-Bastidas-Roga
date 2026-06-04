@@ -1,0 +1,65 @@
+enable
+configure terminal
+vlan 69
+name vilan1
+exit
+vlan 70
+name vilan2
+exit
+interface vlan 69
+ip address 69.69.69.1 255.255.255.0
+exit
+interface vlan 70
+ip address 69.69.69.2 255.255.255.0
+exit
+ip dhcp pool vilan1
+network 69.69.69.0 255.255.255.0
+default-router 69.69.69.1
+dns-server 8.8.8.8
+exit
+ip dhcp pool vilan2
+network 69.69.69.0 255.255.255.0
+default-router 69.69.69.2
+dns-server 8.8.8.8
+exit
+router ospf 1
+router-id 69.69.69.1
+network 69.69.69.0 0.0.0.255 area 0
+exit
+ip access-list standard ACL_VILAN1
+permit 69.69.69.0 0.0.0.255
+exit
+ip access-list standard ACL_VILAN2
+permit 69.69.69.0 0.0.0.255
+exit
+ip nat inside source list ACL_VILAN1 interface GigabitEthernet0/0 overload
+ip nat inside source list ACL_VILAN2 interface GigabitEthernet0/0 overload
+ip nat translation timeout 60
+exit
+line vty 0 15
+password cisco
+login
+transport input ssh
+exit
+interface GigabitEthernet0/0
+ip address dhcp
+no shutdown
+exit
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk allowed vlan 69,70
+no shutdown
+exit
+interface GigabitEthernet0/2
+switchport access vlan 69
+switchport mode access
+no shutdown
+exit
+interface GigabitEthernet0/3
+switchport access vlan 70
+switchport mode access
+no shutdown
+exit
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet0/0
+exit
+write memory
