@@ -1,7 +1,0 @@
-vlan 342
-name fv
-exit
-interface fastethernet0/3
-switchport mode access
-switchport access vlan 342
-exit

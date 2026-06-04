@@ -1,6 +1,0 @@
-ip nat inside source list 1 interface GigabitEthernet0/0 overload
-access-list 1 permit 192.168.1.0 0.0.0.255
-int GigabitEthernet0/0
-ip nat outside
-int GigabitEthernet0/1
-ip nat inside

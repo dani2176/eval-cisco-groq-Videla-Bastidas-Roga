@@ -1,5 +1,0 @@
-vlan 10
-exit
-interface vlan 10
-ip address 69.69.69.1 255.255.255.0
-exit

@@ -1,7 +1,0 @@
-vlan 5
-name ventas
-exit
-interface range f0/1, f0/2
-switchport mode access
-switchport access vlan 5
-exit

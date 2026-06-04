@@ -1,6 +1,0 @@
-interface range Fa0/1-2
-channel-group 1 mode on
-exit
-interface Port-Channel1
-switchport mode trunk
-switchport trunk allowed vlan all

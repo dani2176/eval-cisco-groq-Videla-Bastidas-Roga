@@ -4,6 +4,7 @@ from datetime import datetime
 from groq import Groq
 from dotenv import load_dotenv
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 # CAMBIO 1: Se agregó 'send_from_directory' a las importaciones de Flask
 from flask import Flask, render_template, request, send_from_directory, session
@@ -77,7 +78,11 @@ REGLAS:
 @app.route("/", methods=["GET", "POST"])
 def index():
     resultado = ""
-    archivos = sorted(os.listdir("configs"), reverse=True)
+    
+    archivos = sorted(os.listdir("configs"),
+    key=lambda x: os.path.getctime(os.path.join("configs", x)),
+    reverse=True
+    )
 
     
     # Recuperar API guardada en sesión
@@ -257,7 +262,9 @@ def index():
                 resultado = completion.choices[0].message.content
 
                 # Generar nombres basados en marca de tiempo
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                print("Hora Python:", datetime.now())
+                timestamp = datetime.now(ZoneInfo("America/Santiago")).strftime("%Y%m%d_%H%M%S")
+                print("Zona horaria Chile:", datetime.now(ZoneInfo("America/Santiago")))
                 archivo_txt = f"configs/{tipo}_{timestamp}.txt"
                 archivo_pdf = f"configs/{tipo}_{timestamp}.pdf"
 
@@ -287,7 +294,10 @@ def index():
                 doc.build(contenido_pdf)
 
                 # Actualizar lista de visualización para incluir los nuevos archivos
-                archivos = sorted(os.listdir("configs"), reverse=True)
+                archivos = sorted(os.listdir("configs"),
+                    key=lambda x: os.path.getctime(os.path.join("configs", x)),
+                    reverse=True
+                )
                 
                 # Mensaje de éxito en la interfaz web
                 resultado = f"[✓ Guardado en TXT y PDF]\n\n{resultado}"
