@@ -382,6 +382,87 @@ eval-cisco-groq/
 ├── requirements.txt
 └── web_app.py
 ```
+---
+# 📋 Requisitos
+
+Antes de ejecutar el proyecto, asegúrate de tener instalado:
+
+## Software Requerido
+
+* Python 3.13 o superior
+* Git
+* Docker Desktop (opcional)
+* Visual Studio Code (recomendado)
+* Navegador web moderno (Chrome, Edge, Firefox)
+
+---
+
+## Dependencias de Python
+
+Instalar mediante:
+
+```bash
+pip install -r requirements.txt
+```
+
+Dependencias utilizadas:
+
+* Flask
+* Groq
+* python-dotenv
+* reportlab
+
+---
+
+## Cuenta y API
+
+Para utilizar la aplicación es necesario:
+
+* Crear una cuenta en Groq.
+* Obtener una API Key válida.
+
+Sitio oficial:
+
+https://console.groq.com
+
+---
+
+## Recursos Recomendados
+
+### Hardware
+
+* Procesador de 2 núcleos o superior.
+* 4 GB de RAM mínimo.
+* 1 GB de espacio libre en disco.
+
+### Sistema Operativo
+
+Compatible con:
+
+* Windows 10/11
+* Linux
+* macOS
+
+---
+
+## Requisitos para Docker
+
+Si se utilizará Docker:
+
+* Docker Desktop instalado.
+* Docker Engine funcionando correctamente.
+
+Verificar instalación:
+
+```bash
+docker --version
+```
+
+y
+
+```bash
+docker ps
+```
 
 ---
 
