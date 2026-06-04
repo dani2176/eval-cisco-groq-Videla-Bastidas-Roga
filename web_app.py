@@ -3,28 +3,26 @@ import ipaddress
 from datetime import datetime
 from groq import Groq
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # CAMBIO 1: Se agregó 'send_from_directory' a las importaciones de Flask
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, session
 
 # Nuevas importaciones para la generación de PDFs
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT
 
-# =========================
-# CARGAR VARIABLES .ENV
-# =========================
+#------------------------ 
 load_dotenv()
-api_key = os.getenv("GROQ_API_KEY")
 
-if not api_key:
-    print("ERROR: No se encontró GROQ_API_KEY")
-    exit()
-
-client = Groq(api_key=api_key)
+# client = Groq(api_key=api_key)
 
 app = Flask(__name__)
+
+app.secret_key = "cisco_ai_generator_2026"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_COOKIE_NAME"] = "cisco_session"
 
 # Asegurar que la carpeta exista
 if not os.path.exists("configs"):
@@ -79,13 +77,43 @@ REGLAS:
 @app.route("/", methods=["GET", "POST"])
 def index():
     resultado = ""
-    # Listar tanto los archivos .txt como .pdf en el historial visual
     archivos = sorted(os.listdir("configs"), reverse=True)
 
+    
+    # Recuperar API guardada en sesión
+    api_key = session.get("groq_api_key")
+    print("SESSION:", dict(session))
+    
     if request.method == "POST":
+
         opcion = request.form.get("opcion")
         prompt = ""
         tipo = ""
+
+        # Si el usuario escribió una nueva API
+        nueva_api = request.form.get("groq_api_key")
+
+        if nueva_api and nueva_api.strip():
+            session.permanent = False
+            session["groq_api_key"] = nueva_api.strip()
+            api_key = nueva_api.strip()
+
+        # Si no existe API ni en el formulario ni en sesión
+        if not api_key or not str(api_key).startswith("gsk_"):
+            resultado = "ERROR: Debes ingresar una API Key válida de Groq"
+            return render_template(
+                "index.html",
+                resultado=resultado,
+                archivos=archivos
+            )
+
+        # Crear cliente Groq usando la API de la sesión
+        print("=" * 50)
+        print("API_KEY:", api_key)
+        print("=" * 50)
+        print("API USADA:", api_key)
+        client = Groq(api_key=api_key)
+
 
         # 1. VLAN
         if opcion == "1":
@@ -267,7 +295,7 @@ def index():
             except Exception as e:
                 resultado = f"ERROR: {e}"
 
-    return render_template("index.html", resultado=resultado, archivos=archivos)
+    return render_template("index.html", resultado=resultado, archivos=archivos, api_guardada=session.get("groq_api_key")) 
 
 # CAMBIO 2: Nueva función para resolver la descarga segura de archivos locales
 @app.route("/descargar/<nombre>")
@@ -278,5 +306,11 @@ def descargar(nombre):
         as_attachment=True
     )
 
+@app.route("/borrar_api")
+def borrar_api():
+    session.clear()
+    return "API borrada"
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
+
