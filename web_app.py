@@ -1,13 +1,18 @@
 import os
 import ipaddress
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 from groq import Groq
 from dotenv import load_dotenv
 from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
 
-# Cargar variables .env
+# Nuevas importaciones para la generación de PDFs
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT
+
+# =========================
+# CARGAR VARIABLES .ENV
+# =========================
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
 
@@ -19,10 +24,13 @@ client = Groq(api_key=api_key)
 
 app = Flask(__name__)
 
+# Asegurar que la carpeta exista
 if not os.path.exists("configs"):
     os.makedirs("configs")
 
-# Funciones de lógica interna (Se mantienen idénticas a tus funciones originales)
+# =========================
+# LÓGICA DE REDES INTERNA
+# =========================
 def calcular_red(red_cidr):
     try:
         red = ipaddress.ip_network(red_cidr, strict=False)
@@ -63,10 +71,13 @@ REGLAS:
 - La salida debe estar lista para copiar y pegar
 """
 
+# =========================
+# RUTA PRINCIPAL FLASK
+# =========================
 @app.route("/", methods=["GET", "POST"])
 def index():
     resultado = ""
-    # Obtener el historial para listarlo siempre en la interfaz si es necesario
+    # Listar tanto los archivos .txt como .pdf en el historial visual
     archivos = sorted(os.listdir("configs"), reverse=True)
 
     if request.method == "POST":
@@ -90,7 +101,6 @@ def index():
             red_cidr = request.form.get("ospf_red_cidr")
             area = request.form.get("ospf_area")
             datos = calcular_red(red_cidr)
-            
             if datos:
                 tipo = "ospf"
                 prompt = f"Configurar OSPF:\nProceso {proceso}\nRed {datos['red']}\nMascara {datos['mascara']}\nWildcard {datos['wildcard']}\nGateway {datos['gateway']}\nÁrea {area}"
@@ -103,7 +113,6 @@ def index():
             prefijo = request.form.get("sub_prefijo")
             subredes = request.form.get("sub_subredes")
             datos_red = calcular_red(f"{red}/{prefijo}")
-            
             if datos_red:
                 tipo = "subnetting"
                 prompt = f"Generar subnetting Cisco:\nRed base {red}/{prefijo}\nCantidad subredes {subredes}\n\nMostrar:\n- Subred\n- Máscara\n- Gateway\n- Hosts disponibles"
@@ -115,7 +124,6 @@ def index():
             red_cidr = request.form.get("static_red_cidr")
             gateway = request.form.get("static_gateway")
             datos = calcular_red(red_cidr)
-            
             if datos:
                 tipo = "static_route"
                 prompt = f"Configurar ruta estática Cisco:\nRed destino {datos['red']}\nMáscara {datos['mascara']}\nGateway {gateway}"
@@ -127,7 +135,6 @@ def index():
             pool = request.form.get("dhcp_pool")
             red_cidr = request.form.get("dhcp_red_cidr")
             datos = calcular_red(red_cidr)
-            
             if datos:
                 tipo = "dhcp"
                 prompt = f"Configurar DHCP Cisco:\nPool {pool}\nRed {datos['red']}\nMáscara {datos['mascara']}\nGateway {datos['gateway']}"
@@ -140,7 +147,6 @@ def index():
             permiso = request.form.get("acl_permiso")
             red_cidr = request.form.get("acl_red_cidr")
             datos = calcular_red(red_cidr)
-            
             if datos:
                 tipo = "acl"
                 prompt = f"Configurar ACL Cisco:\nACL {numero_acl}\nAcción {permiso}\nRed {datos['red']}\nWildcard {datos['wildcard']}"
@@ -176,7 +182,6 @@ def index():
             vlan = request.form.get("iv_vlan")
             red_cidr = request.form.get("iv_red_cidr")
             datos = calcular_red(red_cidr)
-            
             if datos:
                 tipo = "inter_vlan"
                 prompt = f"Configurar Inter-VLAN Routing Cisco:\nVLAN {vlan}\nRed {datos['red']}\nMascara {datos['mascara']}\nGateway {datos['gateway']}"
@@ -188,7 +193,6 @@ def index():
             red_cidr = request.form.get("nat_red_cidr")
             interfaz = request.form.get("nat_interfaz_ext")
             datos = calcular_red(red_cidr)
-            
             if datos:
                 tipo = "nat"
                 prompt = f"Configurar NAT Cisco:\nRed interna {datos['red']}\nWildcard {datos['wildcard']}\nInterfaz externa {interfaz}"
@@ -208,65 +212,60 @@ def index():
             tipo = "diseno_red"
             prompt = f"Diseña una red Cisco IOS completa.\nRequerimientos:\n{descripcion}\n\nIncluye:\n- VLAN\n- DHCP\n- OSPF\n- ACL\n- NAT\n- SSH\n- Trunk\n- Inter-VLAN Routing\n\nGenera únicamente comandos Cisco IOS."
 
-        # Procesar con Groq si no hay errores previos de validación de IPs
+        # Llamar a Groq e implementar ReportLab
         if prompt and not resultado.startswith("ERROR"):
             try:
                 completion = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[
-                        {
-                            "role": "system",
-                            "content": SYSTEM_PROMPT
-                        },
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt}
                     ],
                     temperature=0.2,
                     max_tokens=800
                 )
-
                 resultado = completion.choices[0].message.content
 
+                # Generar nombres basados en marca de tiempo
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                archivo = f"configs/{tipo}_{timestamp}.txt"
+                archivo_txt = f"configs/{tipo}_{timestamp}.txt"
+                archivo_pdf = f"configs/{tipo}_{timestamp}.pdf"
 
-                with open(archivo, "w", encoding="utf-8") as f:
+                # 1. Guardar archivo de texto (.txt)
+                with open(archivo_txt, "w", encoding="utf-8") as f:
                     f.write(resultado)
 
-                pdf_file = archivo.replace(".txt", ".pdf")
-
-                doc = SimpleDocTemplate(pdf_file)
-
+                # 2. Guardar reporte en PDF (.pdf) usando tu lógica ReportLab
+                doc = SimpleDocTemplate(archivo_pdf)
                 styles = getSampleStyleSheet()
-
-                contenido = [
-                    Paragraph(
-                        "Configuración Cisco IOS",
-                        styles["Title"]
-                    ),
-                    Paragraph(
-                        resultado.replace("\n", "<br/>"),
-                        styles["BodyText"]
-                    )
-                ]
-
-                doc.build(contenido)
-
-                archivos = sorted(
-                    os.listdir("configs"),
-                    reverse=True
+                
+                # Definir un estilo de fuente monoespaciada para que el código Cisco mantenga las indentaciones
+                style_codigo = ParagraphStyle(
+                    'CiscoCodeStyle',
+                    parent=styles['Normal'],
+                    fontName='Courier',
+                    fontSize=10,
+                    leading=14,
+                    alignment=TA_LEFT
                 )
 
+                contenido_pdf = [
+                    Paragraph(f"Configuración Cisco IOS - {tipo.upper()}", styles["Title"]),
+                    Spacer(1, 15),
+                    Paragraph(resultado.replace("\n", "<br/>"), style_codigo)
+                ]
+                doc.build(contenido_pdf)
+
+                # Actualizar lista de visualización para incluir los nuevos archivos
+                archivos = sorted(os.listdir("configs"), reverse=True)
+                
+                # Mensaje de éxito en la interfaz web
+                resultado = f"[✓ Guardado en TXT y PDF]\n\n{resultado}"
+
             except Exception as e:
-                resultado = f"ERROR de conexión con la API: {e}"
-       
-            return render_template(
-        "index.html",
-        resultado=resultado,
-        archivos=archivos
-    )
-print("LLEGO AL FINAL")
+                resultado = f"ERROR: {e}"
+
+    return render_template("index.html", resultado=resultado, archivos=archivos)
+
 if __name__ == "__main__":
     app.run(debug=True)
