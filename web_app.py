@@ -1,9 +1,11 @@
 import os
 import ipaddress
-from flask import Flask, render_template, request
+from datetime import datetime
 from groq import Groq
 from dotenv import load_dotenv
-from datetime import datetime
+
+# CAMBIO 1: Se agregó 'send_from_directory' a las importaciones de Flask
+from flask import Flask, render_template, request, send_from_directory
 
 # Nuevas importaciones para la generación de PDFs
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -266,6 +268,15 @@ def index():
                 resultado = f"ERROR: {e}"
 
     return render_template("index.html", resultado=resultado, archivos=archivos)
+
+# CAMBIO 2: Nueva función para resolver la descarga segura de archivos locales
+@app.route("/descargar/<nombre>")
+def descargar(nombre):
+    return send_from_directory(
+        "configs",
+        nombre,
+        as_attachment=True
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

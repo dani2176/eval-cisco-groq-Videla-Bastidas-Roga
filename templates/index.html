@@ -198,22 +198,16 @@
             font-family: monospace;
         }
 
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #94a3b8;
+        /* Pequeño estilo adicional solo para separar el botón de descarga del texto */
+        .download-btn {
+            color: #3b82f6;
+            text-decoration: none;
+            margin-left: 10px;
+            font-weight: bold;
         }
-
-        @media(max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .full {
-                grid-column: 1 / 2;
-            }
-            .title h1 {
-                font-size: 32px;
-            }
+        .download-btn:hover {
+            text-decoration: underline;
+            color: #a855f7;
         }
     </style>
 </head>
@@ -407,7 +401,10 @@
         <h3>📂 Archivos Guardados en /configs</h3>
         <ul class="history-list">
             {% for archivo in archivos %}
-                <li>📄 {{ archivo }}</li>
+                <li style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📄 {{ archivo }}</span>
+                    <a href="/descargar/{{ archivo }}" class="download-btn">Descargar</a>
+                </li>
             {% else %}
                 <li>No hay archivos guardados aún.</li>
             {% endfor %}
