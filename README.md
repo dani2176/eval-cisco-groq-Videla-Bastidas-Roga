@@ -1,4 +1,3 @@
-````md id="4o3m6v"
 # ⚡ Cisco AI Generator
 
 Generador inteligente de configuraciones Cisco IOS utilizando Inteligencia Artificial mediante la API de Groq y modelos LLM.
@@ -7,47 +6,41 @@ Generador inteligente de configuraciones Cisco IOS utilizando Inteligencia Artif
 
 # 📌 Descripción del Proyecto
 
-Este proyecto fue desarrollado como una herramienta de automatización de configuraciones Cisco IOS utilizando Python, Flask y modelos de IA.
+Cisco AI Generator es una aplicación web desarrollada con Python y Flask que permite generar configuraciones Cisco IOS de forma automática utilizando Inteligencia Artificial.
 
-La aplicación permite generar configuraciones de red automáticamente mediante prompts enviados a una IA especializada en redes Cisco.
+El sistema utiliza la API de Groq y modelos LLM para generar configuraciones listas para implementar en dispositivos Cisco. La aplicación facilita la creación de configuraciones de switching, routing, seguridad y servicios de red mediante una interfaz web intuitiva.
 
-## El sistema incluye:
-
-- Interfaz web moderna y dinámica
-- Generación automática de configuraciones Cisco IOS
-- Integración con API de Groq
-- Validaciones básicas de entrada
-- Guardado automático de configuraciones
-- Uso de Git y GitHub
-- Manejo seguro de variables de entorno
-- Streaming de respuestas en tiempo real
+Las configuraciones generadas pueden visualizarse directamente desde la aplicación, descargarse en formato TXT o PDF y almacenarse en un historial para futuras consultas.
 
 ---
 
 # 🎯 Objetivo del Proyecto
 
-Automatizar tareas comunes de configuración Cisco mediante Inteligencia Artificial para facilitar:
+Automatizar tareas comunes de administración y configuración de redes Cisco para:
 
-- Creación rápida de configuraciones
-- Reducción de errores manuales
-- Estandarización de comandos
-- Apoyo al aprendizaje de redes Cisco
-- Optimización de tareas administrativas
+* Reducir errores humanos.
+* Acelerar despliegues.
+* Facilitar el aprendizaje de Cisco IOS.
+* Estandarizar configuraciones.
+* Ahorrar tiempo en tareas repetitivas.
 
 ---
 
 # 🚀 Tecnologías Utilizadas
 
-- Python 3.13.1
-- Flask
-- Groq API
-- Modelo Llama 3.3 70B Versatile
-- HTML5
-- CSS3
-- Git
-- GitHub
-- Visual Studio Code
-- python-dotenv
+* Python 3.13
+* Flask
+* Groq API
+* Llama 3.3 70B Versatile
+* HTML5
+* CSS3
+* JavaScript
+* ReportLab
+* Docker
+* Git
+* GitHub
+* Visual Studio Code
+* python-dotenv
 
 ---
 
@@ -55,32 +48,61 @@ Automatizar tareas comunes de configuración Cisco mediante Inteligencia Artific
 
 Actualmente el sistema permite generar automáticamente:
 
-- VLAN
-- OSPF
-- SUBNETTING
-- STATIC ROUTE
-- DHCP
-- ACL
+### Switching
+
+* VLAN
+* TRUNK
+* INTER-VLAN ROUTING
+* PORT-SECURITY
+* ETHERCHANNEL
+
+### Routing
+
+* STATIC ROUTE
+* OSPF
+
+### Servicios de Red
+
+* DHCP
+* NAT
+
+### Seguridad
+
+* ACL
+* SSH
+
+### Diseño y Planificación
+
+* SUBNETTING
+* DISEÑO AUTOMÁTICO DE RED
 
 ---
 
-# 📡 Ejemplos de Configuración
+# 📡 Configuraciones Soportadas
 
-## 1️⃣ VLAN
+## VLAN
+
+Permite crear VLANs y asignarlas a interfaces específicas.
+
+Ejemplo:
 
 ```cisco
 vlan 10
-name ventas
+name VENTAS
 
-interface fa0/1
+interface FastEthernet0/1
 switchport mode access
 switchport access vlan 10
 no shutdown
-````
+```
 
 ---
 
-## 2️⃣ OSPF
+## OSPF
+
+Genera configuraciones de enrutamiento dinámico utilizando OSPF.
+
+Ejemplo:
 
 ```cisco
 router ospf 1
@@ -89,107 +111,248 @@ network 192.168.1.0 0.0.0.255 area 0
 
 ---
 
-## 3️⃣ STATIC ROUTE
+## STATIC ROUTE
+
+Permite generar rutas estáticas para redes remotas.
+
+Ejemplo:
 
 ```cisco
-ip route 192.168.50.0 255.255.255.0 10.0.0.1
+ip route 192.168.2.0 255.255.255.0 10.0.0.2
 ```
 
 ---
 
-## 4️⃣ DHCP
+## DHCP
+
+Genera pools DHCP para asignación automática de direcciones IP.
+
+Ejemplo:
 
 ```cisco
-ip dhcp pool POOL_VENTAS
+ip dhcp pool LAN_VENTAS
 network 192.168.1.0 255.255.255.0
 default-router 192.168.1.1
+dns-server 8.8.8.8
 ```
 
 ---
 
-## 5️⃣ ACL
+## ACL
+
+Permite generar listas de control de acceso estándar y extendidas.
+
+Ejemplo:
 
 ```cisco
-access-list 100 permit 192.168.1.0 0.0.0.255
+access-list 100 permit ip 192.168.1.0 0.0.0.255 any
 ```
 
+---
+
+## SSH
+
+Genera configuraciones seguras para acceso remoto mediante SSH.
+
+Ejemplo:
+
+```cisco
+hostname SwitchCore
+
+ip domain-name redes.local
+
+username admin secret cisco1234
+
+crypto key generate rsa
+
+line vty 0 4
+transport input ssh
+login local
+```
+
+---
+
+## NAT
+
+Permite generar configuraciones de NAT estático, dinámico y PAT.
+
+Ejemplo:
+
+```cisco
+access-list 1 permit 192.168.1.0 0.0.0.255
+
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+
+interface GigabitEthernet0/0
+ip nat inside
+
+interface GigabitEthernet0/1
+ip nat outside
+```
+
+---
+
+## PORT-SECURITY
+
+Permite proteger puertos de acceso limitando dispositivos conectados.
+
+Ejemplo:
+
+```cisco
+interface FastEthernet0/1
+switchport mode access
+switchport port-security
+switchport port-security maximum 2
+switchport port-security violation shutdown
+```
+
+---
+
+## TRUNK
+
+Genera configuraciones para enlaces troncales entre switches.
+
+Ejemplo:
+
+```cisco
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk allowed vlan 10,20,30
+```
+
+---
+
+## INTER-VLAN ROUTING
+
+Permite la comunicación entre VLAN mediante Router-on-a-Stick.
+
+Ejemplo:
+
+```cisco
+interface GigabitEthernet0/0.10
+encapsulation dot1Q 10
+ip address 192.168.10.1 255.255.255.0
+```
+
+---
+
+## ETHERCHANNEL
+
+Genera configuraciones EtherChannel utilizando LACP.
+
+Ejemplo:
+
+```cisco
+interface range GigabitEthernet0/1-2
+channel-group 1 mode active
+
+interface Port-channel1
+switchport mode trunk
+```
+
+---
+
+## SUBNETTING
+
+Ayuda a calcular subredes y máscaras según los requerimientos de hosts.
+
+---
+
+## DISEÑO AUTOMÁTICO DE RED
+
+Genera propuestas completas de diseño de red incluyendo:
+
+* VLAN
+* Direccionamiento IP
+* Routing
+* Seguridad básica
+* Servicios de red
+
+---
+
+## EVIDENCIAS IMAGENES
+
+![Interfaz Principal](imagenes/VLAN.png)
+
+
+![Interfaz Principal](imagenes/OSPF.png)
+
+
+![Interfaz Principal]imagenes/DHCP.png()
+
+
+![Interfaz Principal](imagenes/subnetting.png)
 ---
 
 # 🎨 Características de la Interfaz
 
-La aplicación web posee:
-
-* Diseño responsive
-* Estilo moderno tipo cyberpunk
-* Colores dinámicos azul, rojo y morado
-* Animaciones suaves
-* Efectos glow
-* Formularios intuitivos
-* Visualización clara de resultados
+* Diseño moderno y responsivo.
+* Historial de configuraciones.
+* Visualización inmediata de resultados.
+* Descarga directa de archivos TXT y PDF.
+* Gestión temporal de API Keys.
+* Formularios dinámicos.
+* Organización automática de configuraciones generadas.
 
 ---
 
 # 🔒 Seguridad
 
-## Protección de API Key
+## Gestión de API Key
 
-La clave privada de Groq se almacena en un archivo `.env`.
+La API Key de Groq es ingresada por el usuario desde la interfaz web.
 
-### Ejemplo:
+Características:
 
-```env
-GROQ_API_KEY=TU_API_KEY_AQUI
-```
-
----
-
-## Exclusión de Archivos Sensibles
-
-El archivo `.env` se protege mediante `.gitignore` para evitar subir credenciales privadas a GitHub.
-
-### Contenido de `.gitignore`
-
-```gitignore
-venv/
-__pycache__/
-.env
-```
+* No se almacena permanentemente.
+* Se mantiene únicamente durante la sesión activa.
+* Se elimina al cerrar completamente la sesión.
+* No se guarda en archivos del proyecto.
 
 ---
 
-# ✅ Validaciones Implementadas
+# 📄 Exportación de Configuraciones
 
-El sistema valida entradas antes de consumir la API.
+Cada configuración generada se guarda automáticamente en:
 
-Actualmente se valida:
+* TXT
+* PDF
 
-* VLAN numérica
-* VLAN dentro del rango válido (1–4094)
-* Proceso OSPF numérico
-* Cantidad de subredes válida
-* Selección correcta del menú
-
-### Ejemplo de error
+Ejemplos:
 
 ```text
-ERROR: VLAN fuera de rango
+configs/nat_20260605_142300.txt
+configs/nat_20260605_142300.pdf
 ```
 
 ---
 
-# ⚡ Streaming en Tiempo Real
+# 📂 Historial de Configuraciones
 
-La respuesta generada por la IA puede visualizarse en tiempo real utilizando:
+La aplicación muestra automáticamente los archivos generados almacenados en:
 
-```python
-stream=True
+```text
+configs/
 ```
 
-Esto permite observar cómo los comandos Cisco son generados progresivamente.
+Los usuarios pueden visualizar el historial directamente desde la interfaz y descargar configuraciones anteriores.
+
+Los archivos se ordenan automáticamente por fecha y hora de creación, mostrando primero los más recientes.
 
 ---
 
-# ⚙️ Parámetros del Modelo
+# 📥 Descarga de Archivos
+
+Las configuraciones generadas pueden descargarse desde la aplicación.
+
+Formatos disponibles:
+
+* TXT
+* PDF
+
+---
+
+# ⚡ Parámetros del Modelo
 
 Configuración utilizada:
 
@@ -200,56 +363,49 @@ max_tokens=800
 
 ---
 
-# 💾 Guardado Automático
-
-Todas las configuraciones generadas se almacenan automáticamente en la carpeta:
+# 📂 Estructura Actual del Proyecto
 
 ```text
-configs/
-```
-
-### Ejemplo
-
-```text
-configs/vlan_20260513_154500.txt
-```
-
-Esto permite mantener historial de configuraciones generadas.
-
----
-
-# 📂 Estructura del Proyecto
-
-```bash
 eval-cisco-groq/
 │
 ├── configs/
-│   ├── vlan_20260513.txt
-│   ├── ospf_20260513.txt
-│
-├── templates/
-│   └── index.html
-│
 ├── static/
-│   └── style.css
+├── templates/
 │
-├── imagenes/
-│
-├── venv/
-│
-├── .env
+├── .dockerignore
 ├── .env.example
 ├── .gitignore
-├── requirements.txt
-├── web_app.py
+├── Dockerfile
+├── LICENSE
 ├── README.md
+├── cisco_config_gen.py
+├── requirements.txt
+└── web_app.py
 ```
 
 ---
 
-# 🛠️ Instalación
+# 📋 Archivos Principales
 
-## 1️⃣ Clonar repositorio
+| Archivo             | Descripción                                     |
+| ------------------- | ----------------------------------------------- |
+| web_app.py          | Aplicación principal Flask                      |
+| cisco_config_gen.py | Generación de configuraciones Cisco mediante IA |
+| requirements.txt    | Dependencias del proyecto                       |
+| Dockerfile          | Configuración para despliegue en Docker         |
+| .dockerignore       | Exclusión de archivos para Docker               |
+| .env.example        | Ejemplo de variables de entorno                 |
+| README.md           | Documentación principal del proyecto            |
+| LICENSE             | Licencia MIT                                    |
+| configs/            | Archivos TXT y PDF generados                    |
+| static/             | Recursos gráficos y estilos                     |
+| templates/          | Plantillas HTML de Flask                        |
+
+---
+
+# 🛠️ Instalación Local
+
+## Clonar repositorio
 
 ```bash
 git clone URL_DEL_REPOSITORIO
@@ -257,7 +413,15 @@ git clone URL_DEL_REPOSITORIO
 
 ---
 
-## 2️⃣ Crear entorno virtual
+## Ingresar al proyecto
+
+```bash
+cd eval-cisco-groq
+```
+
+---
+
+## Crear entorno virtual
 
 ```bash
 py -3.13 -m venv venv
@@ -265,7 +429,7 @@ py -3.13 -m venv venv
 
 ---
 
-## 3️⃣ Activar entorno virtual
+## Activar entorno virtual
 
 ```bash
 venv\Scripts\activate
@@ -273,7 +437,7 @@ venv\Scripts\activate
 
 ---
 
-## 4️⃣ Instalar dependencias
+## Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
@@ -281,23 +445,7 @@ pip install -r requirements.txt
 
 ---
 
-## 5️⃣ Crear archivo `.env`
-
-Crear un archivo llamado:
-
-```text
-.env
-```
-
-Agregar:
-
-```env
-GROQ_API_KEY=TU_API_KEY
-```
-
----
-
-## 6️⃣ Ejecutar aplicación
+## Ejecutar aplicación
 
 ```bash
 python web_app.py
@@ -305,55 +453,66 @@ python web_app.py
 
 ---
 
+# 🐳 Docker
+
+## Construir imagen
+
+```bash
+docker build -t cisco-ai-generator .
+```
+
+---
+
+## Ejecutar contenedor
+
+```bash
+docker run -p 5000:5000 -v "${PWD}/configs:/app/configs" cisco-ai-generator
+```
+
+Este volumen permite que los archivos TXT y PDF generados dentro del contenedor se almacenen permanentemente en la carpeta local `configs`.
+
+---
+
+## Abrir aplicación
+
+```text
+http://localhost:5000
+```
+
+---
+
 # 🌐 Uso de la Aplicación
 
-1. Seleccionar tipo de configuración.
-2. Completar parámetros solicitados.
-3. Presionar el botón:
+1. Abrir la aplicación web.
+2. Ingresar una API Key válida de Groq.
+3. Seleccionar el tipo de configuración.
+4. Completar los parámetros solicitados.
+5. Presionar:
 
 ```text
 🚀 Generar Configuración
 ```
 
-4. La IA generará automáticamente comandos Cisco IOS válidos.
-5. La configuración se mostrará en pantalla y se guardará automáticamente.
-
----
-
-# 📸 Evidencias del Proyecto
-
-## 🖥️ Interfaz Principal
-
-![Interfaz Principal](imagenes/interfaz_principal.png)
-
----
-
-## 🛡️ Configuración ACL
-
-![Configuración ACL](imagenes/acl_generada.png)
-
----
-
-## 📡 Configuración DHCP
-
-![Configuración DHCP](imagenes/dhcp_generado.png)
+6. Visualizar el resultado generado por la IA.
+7. Descargar el archivo TXT o PDF.
+8. Consultar configuraciones anteriores desde el historial.
 
 ---
 
 # 🔄 Control de Versiones
 
-Se utiliza Git y GitHub para:
+Git y GitHub son utilizados para:
 
-* Historial de cambios
-* Respaldo del proyecto
-* Colaboración
-* Seguimiento de commits
+* Control de versiones.
+* Historial de cambios.
+* Colaboración.
+* Respaldo del proyecto.
 
-## Comandos utilizados
+Comandos utilizados:
 
 ```bash
 git add .
-git commit -m "Mensaje del commit"
+git commit -m "Mensaje"
 git push
 ```
 
@@ -361,17 +520,18 @@ git push
 
 # 📌 Estado Actual del Proyecto
 
-Proyecto funcional y conectado correctamente a la API de Groq.
+## Últimas Actualizaciones
 
-## Características confirmadas
-
-* API funcionando
-* Generación automática Cisco IOS
-* Interfaz web funcional
-* Validaciones activas
-* Streaming en tiempo real
-* Guardado automático de configuraciones
-* Repositorio conectado a GitHub
+* Integración con API de Groq.
+* Generación automática de configuraciones Cisco IOS.
+* Interfaz web funcional con Flask.
+* Historial de configuraciones generado automáticamente.
+* Exportación de configuraciones en formato TXT y PDF.
+* Soporte para Docker.
+* Gestión temporal de API Keys.
+* Formularios dinámicos para distintos tipos de configuraciones.
+* Organización automática de archivos generados.
+* Proyecto completamente funcional para pruebas y desarrollo.
 
 ---
 
@@ -385,7 +545,4 @@ Proyecto funcional y conectado correctamente a la API de Groq.
 
 # 📜 Licencia
 
-Este proyecto utiliza licencia MIT.
-
-```
-```
+Licencia MIT.

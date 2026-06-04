@@ -1,0 +1,4 @@
+router ospf 1
+network 192.168.2.0 0.0.0.255 area 0
+exit
+ip route 0.0.0.0 0.0.0.0 192.168.2.1

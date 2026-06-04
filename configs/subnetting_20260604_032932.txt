@@ -1,0 +1,14 @@
+ip subnet-zero
+network 10.10.10.0 255.255.255.0
+ip subnet 10.10.10.0 255.255.255.128
+ip subnet 10.10.10.128 255.255.255.128
+
+Subred 1: 10.10.10.0 
+Máscara: 255.255.255.128 
+Gateway: 10.10.10.1 
+Hosts disponibles: 126
+
+Subred 2: 10.10.10.128 
+Máscara: 255.255.255.128 
+Gateway: 10.10.10.129 
+Hosts disponibles: 126
