@@ -384,9 +384,17 @@
                 <label style="color: #a855f7; text-align: center;">Puedes visualizar los últimos archivos generados en la caja de abajo.</label>
             </div>
         </div>
-
-        <button type="submit" id="btn-submit">🚀 Generar Configuración</button>
-    </form>
+<div class="input-box full">
+    <label>API Key de Groq</label>
+    <input
+        type="password"
+        name="groq_api_key"
+        placeholder="gsk_..."
+        required
+    >
+</div>
+    <button type="submit" id="btn-submit">🚀 Generar Configuración</button>
+</form>
 
     {% if resultado %}
     <div class="result">
